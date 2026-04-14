@@ -1,9 +1,13 @@
 services:
   ckb-exporter:
+    # Option A: Build locally
     build: .
+    # Option B: Use pre-built image from GHCR (uncomment below, comment out 'build' above)
+    # image: ghcr.io/jiangxianliang007/ckb-node-monitor:latest
     env_file: .env
     ports:
       - "8090:8090"
+    restart: unless-stopped
 
   # Optional local Prometheus for standalone monitoring
   # prometheus:
