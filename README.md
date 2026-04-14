@@ -104,6 +104,24 @@ scrape_configs:
   - `node_location`: `label_values(ckb_node_status{chain="$chain"}, node_location)`
 - Filter dashboards by label selectors instead of exporter query parameters.
 
+## Grafana Dashboard
+
+Import the pre-built dashboard:
+
+1. Open Grafana → Dashboards → Import
+2. Upload `grafana/ckb-node-monitor.json`
+3. Select your Prometheus datasource
+4. Click Import
+
+Dashboard features:
+- **Variable selectors**: Filter by chain, node type, and individual nodes
+- **Node overview**: Total/online/offline node counts with status table
+- **Version distribution**: Pie charts showing CKB node version and miner version proportions
+- **Block performance**: Block height, interval, size, and difficulty trends
+- **Peer network**: Inbound/outbound peers, light clients, banned addresses
+- **Transaction pool**: Pending/proposed txs, pool size, oldest pending age
+- **Fee economics**: Fee rate mean/median/estimated, block transaction counts, epoch info
+
 ## Metrics and RPC Compatibility
 
 The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
