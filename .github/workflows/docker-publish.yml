@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "app/**"
+      - "run.py"
+      - "requirements.txt"
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - ".env.example"
     tags:
       - "v*"
   workflow_dispatch:
