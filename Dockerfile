@@ -6,5 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 8090
+ENV EXPORTER_PORT=8090
+EXPOSE ${EXPORTER_PORT}
 CMD ["python", "run.py"]
