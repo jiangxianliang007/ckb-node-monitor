@@ -49,10 +49,7 @@ def load_config() -> Config:
     bootnodes_raw = os.getenv("BOOTNODES", "")
     bootnodes = [value.strip() for value in bootnodes_raw.split(",") if value.strip()]
 
-    logging.basicConfig(
-        level=getattr(logging, log_level, logging.INFO),
-        format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
-    )
+    logging.getLogger().setLevel(getattr(logging, log_level, logging.INFO))
 
     return Config(
         ckb_node_rpc_url=ckb_node_rpc_url,

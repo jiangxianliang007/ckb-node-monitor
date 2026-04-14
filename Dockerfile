@@ -6,5 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+ENV PYTHONUNBUFFERED=1
 EXPOSE 8090
-CMD ["python", "run.py"]
+CMD ["python", "-u", "run.py"]
