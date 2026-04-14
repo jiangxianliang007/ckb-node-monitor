@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import logging
+import time
 
-from flask import Flask, Response, jsonify
+from flask import Flask, Response, g, jsonify, request
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from .config import Config, load_config
@@ -26,6 +27,24 @@ def create_app(config: Config | None = None) -> Flask:
     }
     collector = MetricsCollector(rpc_client, labels)
 
+    @app.before_request
+    def log_request_start() -> None:
+        g.request_started_at = time.time()
+        logger.info("--> %s %s from %s", request.method, request.path, request.remote_addr)
+
+    @app.after_request
+    def log_request_end(response: Response) -> Response:
+        started_at = getattr(g, "request_started_at", None)
+        duration_ms = (time.time() - started_at) * 1000 if started_at is not None else -1.0
+        logger.info(
+            "<-- %s %s %s (%.1fms)",
+            request.method,
+            request.path,
+            response.status_code,
+            duration_ms,
+        )
+        return response
+
     @app.get("/metrics")
     def metrics() -> Response:
         collector.collect()
@@ -46,4 +65,5 @@ def create_app(config: Config | None = None) -> Flask:
         return jsonify(payload), http_code
 
     logger.info("CKB exporter configured for chain=%s node_name=%s rpc=%s", cfg.chain, cfg.node_name, cfg.ckb_node_rpc_url)
+    logger.info("CKB exporter bind configured on %s:%s", cfg.exporter_host, cfg.exporter_port)
     return app
