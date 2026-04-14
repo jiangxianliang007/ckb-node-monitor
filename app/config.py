@@ -41,6 +41,7 @@ def load_config() -> Config:
     parsed_url = urlparse(ckb_node_rpc_url)
     node_ip = os.getenv("NODE_IP", parsed_url.hostname or "unknown")
     node_location = os.getenv("NODE_LOCATION", "unknown")
+    # Container-internal Flask port is fixed to match Docker EXPOSE/compose target.
     exporter_port = 8090
     exporter_host = os.getenv("EXPORTER_HOST", "0.0.0.0")
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
