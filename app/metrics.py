@@ -9,7 +9,7 @@ from .rpc import RpcGet
 
 logger = logging.getLogger(__name__)
 
-BASE_LABELS = ["chain", "node_name", "node_ip", "node_location"]
+BASE_LABELS = ["chain", "node_name", "node_type", "node_ip", "node_location"]
 
 
 class MetricsCollector:
@@ -95,6 +95,7 @@ class MetricsCollector:
         return [
             self.labels["chain"],
             self.labels["node_name"],
+            self.labels["node_type"],
             self.labels["node_ip"],
             self.labels["node_location"],
         ]

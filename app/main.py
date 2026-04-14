@@ -20,6 +20,7 @@ def create_app(config: Config | None = None) -> Flask:
     labels = {
         "chain": cfg.chain,
         "node_name": cfg.node_name,
+        "node_type": cfg.node_type,
         "node_ip": cfg.node_ip,
         "node_location": cfg.node_location,
     }

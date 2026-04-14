@@ -13,6 +13,7 @@ class Config:
     ckb_node_rpc_url: str
     chain: str
     node_name: str
+    node_type: str
     node_ip: str
     node_location: str
     exporter_port: int
@@ -28,6 +29,7 @@ def load_config() -> Config:
     ckb_node_rpc_url = os.getenv("CKB_NODE_RPC_URL", "").strip()
     chain = os.getenv("CHAIN", "").strip()
     node_name = os.getenv("NODE_NAME", "").strip()
+    node_type = os.getenv("NODE_TYPE", "public").strip()
 
     if not ckb_node_rpc_url:
         raise ValueError("CKB_NODE_RPC_URL is required")
@@ -56,6 +58,7 @@ def load_config() -> Config:
         ckb_node_rpc_url=ckb_node_rpc_url,
         chain=chain,
         node_name=node_name,
+        node_type=node_type,
         node_ip=node_ip,
         node_location=node_location,
         exporter_port=exporter_port,
