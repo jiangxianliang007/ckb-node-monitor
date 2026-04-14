@@ -87,7 +87,7 @@ docker compose up -d --build
 | `NODE_TYPE` | No | `public` | Node type label (`bootnode` / `public`) for Grafana filtering |
 | `NODE_IP` | No | host from `CKB_NODE_RPC_URL` | Node IP/hostname label |
 | `NODE_LOCATION` | No | `unknown` | Node location label |
-| `EXPORTER_PORT` | No | `8090` | Exporter listening port (mainly for direct `python run.py`) |
+| `EXPORTER_PORT` | No | `8090` | Docker host port mapping to container port `8090` |
 | `EXPORTER_HOST` | No | `0.0.0.0` | Exporter listening host (mainly for direct `python run.py`) |
 | `LOG_LEVEL` | No | `INFO` | Logging level |
 | `RPC_TIMEOUT` | No | `10` | RPC timeout in seconds |
