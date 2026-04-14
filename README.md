@@ -59,7 +59,7 @@ docker compose up -d --build
 | `EXPORTER_HOST` | No | `0.0.0.0` | Exporter listening host |
 | `LOG_LEVEL` | No | `INFO` | Logging level |
 | `RPC_TIMEOUT` | No | `10` | RPC timeout in seconds |
-| `BOOTNODES` | No | empty | Comma-separated bootnode IP list for maintainer ban tracking |
+| `BOOTNODES` | No | empty | Comma-separated bootnode IP list to check whether known bootnodes are currently banned by this node |
 
 > `BOOTNODES` is optional. If unset/empty, `node_ban_bootnode` reports `0`.
 

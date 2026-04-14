@@ -131,13 +131,13 @@ class RpcGet:
     def get_node_info(self) -> dict[str, int | str]:
         replay = self._call(2, "local_node_info", [])
         if not replay:
-            return {"node_addressse": "-1", "node_id": "-1", "node_version": "-1", "node_status": 0}
+            return {"node_address": "-1", "node_id": "-1", "node_version": "-1", "node_status": 0}
         addresses = replay.get("addresses", [])
         address = "-1"
         if addresses:
             address = str(addresses[0].get("address", "-1"))
         return {
-            "node_addressse": address,
+            "node_address": address,
             "node_id": str(replay.get("node_id", "-1")),
             "node_version": str(replay.get("version", "-1")),
             "node_status": 1,

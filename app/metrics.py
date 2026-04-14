@@ -22,7 +22,7 @@ class MetricsCollector:
         self.Node_Get_LocalInfo = Gauge(
             "node_get_localinfo",
             "CKB local node info status",
-            BASE_LABELS + ["node_addressse", "node_id", "node_version"],
+            BASE_LABELS + ["node_address", "node_id", "node_version"],
             registry=self.registry,
         )
         self.Node_Get_PeerOutbound = Gauge("node_get_peer_outbound", "Outbound peers", BASE_LABELS, registry=self.registry)
@@ -103,7 +103,7 @@ class MetricsCollector:
         self.Node_Status.labels(*label_values).set(float(local_info["node_status"]))
         self.Node_Get_LocalInfo.labels(
             *label_values,
-            str(local_info["node_addressse"]),
+            str(local_info["node_address"]),
             str(local_info["node_id"]),
             str(local_info["node_version"]),
         ).set(float(local_info["node_status"]))
