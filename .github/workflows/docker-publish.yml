@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "app/**"
+      - "run.py"
+      - "requirements.txt"
+      - "Dockerfile"
     tags:
       - "v*"
   workflow_dispatch:
