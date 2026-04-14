@@ -26,7 +26,7 @@ cp .env.example .env
 python run.py
 ```
 
-### B) Docker
+### B) Docker (build locally)
 
 ```bash
 docker build -t ckb-node-monitor .
@@ -38,7 +38,19 @@ docker run -d \
   ckb-node-monitor
 ```
 
-### C) Docker Compose
+### C) Docker (pre-built image)
+
+```bash
+docker pull ghcr.io/jiangxianliang007/ckb-node-monitor:latest
+docker run -d \
+  -e CKB_NODE_RPC_URL=http://host.docker.internal:8114 \
+  -e CHAIN=mainnet \
+  -e NODE_NAME=mainnet-node-1 \
+  -p 8090:8090 \
+  ghcr.io/jiangxianliang007/ckb-node-monitor:latest
+```
+
+### D) Docker Compose
 
 ```bash
 docker compose up -d --build

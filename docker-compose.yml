@@ -1,6 +1,9 @@
 services:
   ckb-exporter:
+    # Option A: Build locally
     build: .
+    # Option B: Use pre-built image from GHCR (uncomment and comment out 'build' above)
+    # image: ghcr.io/jiangxianliang007/ckb-node-monitor:latest
     env_file: .env
     ports:
       - "8090:8090"
