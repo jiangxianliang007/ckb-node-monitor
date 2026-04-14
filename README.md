@@ -10,7 +10,7 @@ CKB Node (local RPC) -> CKB Exporter (/metrics) -> Prometheus -> Grafana
 
 - This project is a **per-node exporter**, not a centralized monitor.
 - Each instance runs alongside one CKB node and scrapes that local node (default `http://127.0.0.1:8114`).
-- Grafana chain/node selection is done via metric labels (`chain`, `node_name`, `node_location`, `node_ip`).
+- Grafana chain/node selection is done via metric labels (`chain`, `node_type`, `node_name`, `node_location`, `node_ip`).
 - Exporter endpoints:
   - `GET /metrics`
   - `GET /health`
@@ -70,6 +70,7 @@ docker compose up -d --build
 | `CKB_NODE_RPC_URL` | Yes | - | Local CKB RPC endpoint |
 | `CHAIN` | Yes | - | Chain label (`mainnet` / `testnet` / `preview`) |
 | `NODE_NAME` | Yes | - | Unique node name label |
+| `NODE_TYPE` | No | `public` | Node type label (`bootnode` / `public`) for Grafana filtering |
 | `NODE_IP` | No | host from `CKB_NODE_RPC_URL` | Node IP/hostname label |
 | `NODE_LOCATION` | No | `unknown` | Node location label |
 | `EXPORTER_PORT` | No | `8090` | Exporter listening port |
@@ -98,7 +99,8 @@ scrape_configs:
 
 - Create template variables from labels:
   - `chain`: `label_values(ckb_node_status, chain)`
-  - `node_name`: `label_values(ckb_node_status{chain="$chain"}, node_name)`
+  - `node_type`: `label_values(ckb_node_status{chain="$chain"}, node_type)`
+  - `node_name`: `label_values(ckb_node_status{chain="$chain", node_type="$node_type"}, node_name)`
   - `node_location`: `label_values(ckb_node_status{chain="$chain"}, node_location)`
 - Filter dashboards by label selectors instead of exporter query parameters.
 
