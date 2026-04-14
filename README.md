@@ -26,7 +26,24 @@ cp .env.example .env
 python run.py
 ```
 
-### B) Docker
+### B) Docker (pre-built image)
+
+Pre-built multi-arch images (amd64/arm64) are available on GHCR:
+
+```bash
+docker pull ghcr.io/jiangxianliang007/ckb-node-monitor:latest
+docker run -d \
+  -e CKB_NODE_RPC_URL=http://host.docker.internal:8114 \
+  -e CHAIN=mainnet \
+  -e NODE_NAME=mainnet-node-1 \
+  -p 8090:8090 \
+  --restart=unless-stopped \
+  ghcr.io/jiangxianliang007/ckb-node-monitor:latest
+```
+
+Supports both x86_64 and ARM64 (e.g. Apple Silicon, AWS Graviton).
+
+### C) Docker (local build)
 
 ```bash
 docker build -t ckb-node-monitor .
@@ -38,7 +55,7 @@ docker run -d \
   ckb-node-monitor
 ```
 
-### C) Docker Compose
+### D) Docker Compose
 
 ```bash
 docker compose up -d --build
