@@ -32,11 +32,23 @@ Pre-built multi-arch images (amd64/arm64) are available on GHCR:
 
 ```bash
 docker pull ghcr.io/jiangxianliang007/ckb-node-monitor:latest
+
+# Container always listens on 8090 internally.
+# Default host port 8090:
 docker run -d \
   -e CKB_NODE_RPC_URL=http://host.docker.internal:8114 \
   -e CHAIN=mainnet \
   -e NODE_NAME=mainnet-node-1 \
   -p 8090:8090 \
+  --restart=unless-stopped \
+  ghcr.io/jiangxianliang007/ckb-node-monitor:latest
+
+# Custom host port 8166 (maps to container 8090):
+docker run -d \
+  -e CKB_NODE_RPC_URL=http://host.docker.internal:8114 \
+  -e CHAIN=mainnet \
+  -e NODE_NAME=mainnet-node-1 \
+  -p 8166:8090 \
   --restart=unless-stopped \
   ghcr.io/jiangxianliang007/ckb-node-monitor:latest
 ```
@@ -54,6 +66,8 @@ docker run -d \
   -p 8090:8090 \
   ckb-node-monitor
 ```
+
+Use `-p <host_port>:8090` to expose the exporter on any host port.
 
 ### D) Docker Compose
 
@@ -73,8 +87,8 @@ docker compose up -d --build
 | `NODE_TYPE` | No | `public` | Node type label (`bootnode` / `public`) for Grafana filtering |
 | `NODE_IP` | No | host from `CKB_NODE_RPC_URL` | Node IP/hostname label |
 | `NODE_LOCATION` | No | `unknown` | Node location label |
-| `EXPORTER_PORT` | No | `8090` | Exporter listening port |
-| `EXPORTER_HOST` | No | `0.0.0.0` | Exporter listening host |
+| `EXPORTER_PORT` | No | `8090` | Exporter listening port (mainly for direct `python run.py`) |
+| `EXPORTER_HOST` | No | `0.0.0.0` | Exporter listening host (mainly for direct `python run.py`) |
 | `LOG_LEVEL` | No | `INFO` | Logging level |
 | `RPC_TIMEOUT` | No | `10` | RPC timeout in seconds |
 | `BOOTNODES` | No | empty | Comma-separated bootnode IP list to check whether known bootnodes are currently banned by this node |
