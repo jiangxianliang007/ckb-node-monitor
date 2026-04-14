@@ -6,6 +6,8 @@ services:
     # image: ghcr.io/jiangxianliang007/ckb-node-monitor:latest
     env_file: .env
     ports:
+      # Host port:Container port — change the host port (left) as needed
+      # Container always listens on 8090
       - "8090:8090"
     restart: unless-stopped
 
