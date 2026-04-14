@@ -29,13 +29,12 @@ def create_app(config: Config | None = None) -> Flask:
 
     @app.before_request
     def log_request_start() -> None:
-        g.request_started_at = time.time()
+        g.start_time = time.time()
         logger.info("--> %s %s from %s", request.method, request.path, request.remote_addr)
 
     @app.after_request
     def log_request_end(response: Response) -> Response:
-        started_at = getattr(g, "request_started_at", None)
-        duration_ms = (time.time() - started_at) * 1000 if started_at is not None else -1.0
+        duration_ms = (time.time() - getattr(g, "start_time", time.time())) * 1000
         logger.info(
             "<-- %s %s %s (%.1fms)",
             request.method,
@@ -64,6 +63,12 @@ def create_app(config: Config | None = None) -> Flask:
         http_code = 200 if node_status == 1 else 503
         return jsonify(payload), http_code
 
-    logger.info("CKB exporter configured for chain=%s node_name=%s rpc=%s", cfg.chain, cfg.node_name, cfg.ckb_node_rpc_url)
-    logger.info("CKB exporter bind configured on %s:%s", cfg.exporter_host, cfg.exporter_port)
+    logger.info(
+        "CKB exporter configured: chain=%s node=%s rpc=%s listen=%s:%s",
+        cfg.chain,
+        cfg.node_name,
+        cfg.ckb_node_rpc_url,
+        cfg.exporter_host,
+        cfg.exporter_port,
+    )
     return app
