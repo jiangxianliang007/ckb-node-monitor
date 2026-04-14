@@ -364,7 +364,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix: shannons/KB",
+          "unit": "suffix:shannons/KB",
           "color": {
             "mode": "palette-classic"
           },
@@ -1665,7 +1665,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix: shannons/KB",
+          "unit": "suffix:shannons/KB",
           "color": {
             "mode": "palette-classic"
           },
