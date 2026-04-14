@@ -41,7 +41,7 @@ def load_config() -> Config:
     parsed_url = urlparse(ckb_node_rpc_url)
     node_ip = os.getenv("NODE_IP", parsed_url.hostname or "unknown")
     node_location = os.getenv("NODE_LOCATION", "unknown")
-    exporter_port = int(os.getenv("EXPORTER_PORT", "8090"))
+    exporter_port = int(os.getenv("HOST_PORT", "8090"))
     exporter_host = os.getenv("EXPORTER_HOST", "0.0.0.0")
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     rpc_timeout = int(os.getenv("RPC_TIMEOUT", "10"))
