@@ -18,75 +18,78 @@ class MetricsCollector:
         self.labels = labels
         self.registry = CollectorRegistry()
 
-        self.Node_Status = Gauge("node_status", "CKB node connectivity status", BASE_LABELS, registry=self.registry)
+        self.Node_Status = Gauge("ckb_node_status", "CKB node connectivity status (local_node_info)", BASE_LABELS, registry=self.registry)
         self.Node_Get_LocalInfo = Gauge(
-            "node_get_localinfo",
-            "CKB local node info status",
+            "ckb_node_info",
+            "CKB local node info status (local_node_info)",
             BASE_LABELS + ["node_address", "node_id", "node_version"],
             registry=self.registry,
         )
-        self.Node_Get_PeerOutbound = Gauge("node_get_peer_outbound", "Outbound peers", BASE_LABELS, registry=self.registry)
-        self.Node_Get_PeerInbound = Gauge("node_get_peer_inbound", "Inbound peers", BASE_LABELS, registry=self.registry)
+        self.Node_Get_PeerOutbound = Gauge("ckb_peers_outbound_count", "Outbound peers (get_peers)", BASE_LABELS, registry=self.registry)
+        self.Node_Get_PeerInbound = Gauge("ckb_peers_inbound_count", "Inbound peers (get_peers)", BASE_LABELS, registry=self.registry)
         self.Node_Get_Light_Client_Conn = Gauge(
-            "node_get_light_client_conn", "Connected light clients", BASE_LABELS, registry=self.registry
+            "ckb_peers_light_client_count", "Connected light clients (get_peers)", BASE_LABELS, registry=self.registry
         )
         self.Node_Get_LastBlockInfo = Gauge(
-            "node_get_last_block_info", "Last block timestamp", BASE_LABELS, registry=self.registry
+            "ckb_tip_header_info",
+            "Tip header info with labels from get_tip_header/get_block",
+            BASE_LABELS + ["block_hash", "block_number", "block_timestamp"],
+            registry=self.registry,
         )
         self.Node_Get_LastBlocknumber = Gauge(
-            "node_get_last_blocknumber", "Last block number", BASE_LABELS, registry=self.registry
+            "ckb_tip_block_number", "Tip block number (get_tip_header)", BASE_LABELS, registry=self.registry
         )
         self.Node_Get_BlockDetail = Gauge(
-            "node_get_blockdetail_commit_transactions",
-            "Committed transactions in current block",
+            "ckb_block_commit_transactions",
+            "Committed transactions in tip block (get_block)",
             BASE_LABELS,
             registry=self.registry,
         )
         self.Node_Get_BlockDetail_proposal_transactions = Gauge(
-            "node_get_blockdetail_proposal_transactions",
-            "Proposal transactions in current block",
+            "ckb_block_proposal_transactions",
+            "Proposal transactions in tip block (get_block)",
             BASE_LABELS,
             registry=self.registry,
         )
         self.Node_Get_BlockDetail_uncles = Gauge(
-            "node_get_blockdetail_uncles", "Uncles in current block", BASE_LABELS, registry=self.registry
+            "ckb_block_uncles_count", "Uncles in tip block (get_block)", BASE_LABELS, registry=self.registry
         )
         self.Node_Get_BlockDifference = Gauge(
-            "node_get_blockdifference", "Difference between local timestamps", BASE_LABELS, registry=self.registry
+            "ckb_block_interval_seconds", "Tip-to-previous block interval in seconds", BASE_LABELS, registry=self.registry
         )
         self.Node_Get_BlockTimeDifference = Gauge(
-            "node_get_blocktimedifference", "Current time minus tip block timestamp", BASE_LABELS, registry=self.registry
+            "ckb_block_time_since_last_seconds", "Current time minus tip block timestamp in seconds", BASE_LABELS, registry=self.registry
         )
         self.Node_Get_client_version = Gauge(
-            "node_get_client_version",
-            "Client version marker",
+            "ckb_miner_client_version",
+            "Miner client version marker from cellbase witness",
             BASE_LABELS + ["client_version"],
             registry=self.registry,
         )
-        self.Node_Get_Pool_size = Gauge("node_get_pool_size", "Tx pool size", BASE_LABELS, registry=self.registry)
-        self.Node_Get_Pool_cycles = Gauge("node_get_pool_cycles", "Tx pool cycles", BASE_LABELS, registry=self.registry)
-        self.Node_Get_Pool_orphan = Gauge("node_get_pool_orphan", "Orphan tx count", BASE_LABELS, registry=self.registry)
-        self.Node_Get_Pool_pending = Gauge("node_get_pool_pending", "Pending tx count", BASE_LABELS, registry=self.registry)
-        self.Node_Get_Pool_proposed = Gauge("node_get_pool_proposed", "Proposed tx count", BASE_LABELS, registry=self.registry)
+        self.Node_Get_Pool_size = Gauge("ckb_tx_pool_total_tx_size", "Tx pool total size (tx_pool_info)", BASE_LABELS, registry=self.registry)
+        self.Node_Get_Pool_cycles = Gauge("ckb_tx_pool_total_tx_cycles", "Tx pool total cycles (tx_pool_info)", BASE_LABELS, registry=self.registry)
+        self.Node_Get_Pool_orphan = Gauge("ckb_tx_pool_orphan", "Tx pool orphan count (tx_pool_info)", BASE_LABELS, registry=self.registry)
+        self.Node_Get_Pool_pending = Gauge("ckb_tx_pool_pending", "Tx pool pending count (tx_pool_info)", BASE_LABELS, registry=self.registry)
+        self.Node_Get_Pool_proposed = Gauge("ckb_tx_pool_proposed", "Tx pool proposed count (tx_pool_info)", BASE_LABELS, registry=self.registry)
         self.Node_verify_queue_size = Gauge(
-            "node_verify_queue_size", "Verify queue size", BASE_LABELS, registry=self.registry
+            "ckb_tx_pool_verify_queue_size", "Tx pool verify queue size (tx_pool_info)", BASE_LABELS, registry=self.registry
         )
         self.current_epoch_start_number = Gauge(
-            "current_epoch_start_number", "Current epoch start number", BASE_LABELS, registry=self.registry
+            "ckb_epoch_start_number", "Current epoch start number (get_current_epoch)", BASE_LABELS, registry=self.registry
         )
-        self.current_epoch_length = Gauge("current_epoch_length", "Current epoch length", BASE_LABELS, registry=self.registry)
-        self.Node_ban_all = Gauge("node_ban_all", "All banned addresses", BASE_LABELS, registry=self.registry)
-        self.Node_ban_bootnode = Gauge("node_ban_bootnode", "Banned bootnodes", BASE_LABELS, registry=self.registry)
-        self.Pending_Tx_Time = Gauge("pending_tx_time", "Oldest pending tx age in seconds", BASE_LABELS, registry=self.registry)
-        self.Pending_Tx_Count = Gauge("pending_tx_count", "Pending tx count", BASE_LABELS, registry=self.registry)
+        self.current_epoch_length = Gauge("ckb_epoch_length", "Current epoch length (get_current_epoch)", BASE_LABELS, registry=self.registry)
+        self.Node_ban_all = Gauge("ckb_banned_addresses_total", "Total banned addresses (get_banned_addresses)", BASE_LABELS, registry=self.registry)
+        self.Node_ban_bootnode = Gauge("ckb_banned_bootnodes_count", "Banned bootnodes count (get_banned_addresses)", BASE_LABELS, registry=self.registry)
+        self.Pending_Tx_Time = Gauge("ckb_tx_pool_oldest_pending_seconds", "Oldest pending tx age in seconds (get_raw_tx_pool)", BASE_LABELS, registry=self.registry)
+        self.Pending_Tx_Count = Gauge("ckb_tx_pool_pending_count", "Pending tx count (get_raw_tx_pool)", BASE_LABELS, registry=self.registry)
         self.Max_ancestors_count = Gauge(
-            "max_ancestors_count", "Max pending tx ancestors count", BASE_LABELS, registry=self.registry
+            "ckb_tx_pool_max_ancestors_count", "Max pending tx ancestors count (get_raw_tx_pool)", BASE_LABELS, registry=self.registry
         )
-        self.Node_fee_rate_mean = Gauge("node_fee_rate_mean", "Fee rate mean", BASE_LABELS, registry=self.registry)
-        self.Node_fee_rate_median = Gauge("node_fee_rate_median", "Fee rate median", BASE_LABELS, registry=self.registry)
-        self.Block_Size = Gauge("block_size", "Block object size length", BASE_LABELS, registry=self.registry)
-        self.Estimate_fee_rate = Gauge("estimate_fee_rate", "Estimated fee rate", BASE_LABELS, registry=self.registry)
-        self.difficulty = Gauge("difficulty", "Chain difficulty", BASE_LABELS, registry=self.registry)
+        self.Node_fee_rate_mean = Gauge("ckb_fee_rate_mean", "Fee rate mean (get_fee_rate_statistics)", BASE_LABELS, registry=self.registry)
+        self.Node_fee_rate_median = Gauge("ckb_fee_rate_median", "Fee rate median (get_fee_rate_statistics)", BASE_LABELS, registry=self.registry)
+        self.Block_Size = Gauge("ckb_block_size_bytes", "Block serialized size in bytes", BASE_LABELS, registry=self.registry)
+        self.Estimate_fee_rate = Gauge("ckb_estimate_fee_rate", "Estimated fee rate (estimate_fee_rate)", BASE_LABELS, registry=self.registry)
+        self.difficulty = Gauge("ckb_blockchain_difficulty", "Blockchain difficulty (get_blockchain_info)", BASE_LABELS, registry=self.registry)
 
     def _label_values(self) -> list[str]:
         return [
@@ -117,12 +120,18 @@ class MetricsCollector:
         block_number = int(last_block["last_blocknumber"])
         block_timestamp = int(last_block["last_block_timestamp"])
         self.Node_Get_LastBlocknumber.labels(*label_values).set(float(block_number))
-        self.Node_Get_LastBlockInfo.labels(*label_values).set(float(block_timestamp))
 
         if block_number >= 0:
             block_hash = self.rpc_client.get_block_hash(block_number)["blocknumber_hash"]
         else:
             block_hash = "-1"
+
+        self.Node_Get_LastBlockInfo.labels(
+            *label_values,
+            str(block_hash),
+            str(block_number),
+            str(block_timestamp),
+        ).set(float(block_timestamp))
 
         block_detail = self.rpc_client.get_BlockDetail(str(block_hash))
         self.Node_Get_BlockDetail.labels(*label_values).set(float(block_detail["commit_transactions"]))
@@ -135,10 +144,14 @@ class MetricsCollector:
         timestamp_diff = -1.0
         block_diff = -1.0
         try:
-            block_detail_ts = int(block_detail["blocknumber_timestamp"])
-            if block_detail_ts >= 0 and block_timestamp >= 0:
-                block_diff = float(block_timestamp - block_detail_ts)
+            if block_timestamp >= 0:
                 timestamp_diff = float((int(round(time.time() * 1000)) - block_timestamp) / 1000)
+            if block_number > 0 and block_timestamp >= 0:
+                previous_block_hash = self.rpc_client.get_block_hash(block_number - 1)["blocknumber_hash"]
+                previous_block_detail = self.rpc_client.get_BlockDetail(str(previous_block_hash))
+                previous_block_ts = int(previous_block_detail["blocknumber_timestamp"])
+                if previous_block_ts >= 0:
+                    block_diff = abs(float(block_timestamp - previous_block_ts)) / 1000.0
         except (TypeError, ValueError):
             logger.debug("Failed to compute block timing differences")
 

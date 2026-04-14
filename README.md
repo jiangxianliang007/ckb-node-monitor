@@ -61,7 +61,7 @@ docker compose up -d --build
 | `RPC_TIMEOUT` | No | `10` | RPC timeout in seconds |
 | `BOOTNODES` | No | empty | Comma-separated bootnode IP list to check whether known bootnodes are currently banned by this node |
 
-> `BOOTNODES` is optional. If unset/empty, `node_ban_bootnode` reports `0`.
+> `BOOTNODES` is optional. If unset/empty, `ckb_banned_bootnodes_count` reports `0`.
 
 ## Prometheus Scrape Example
 
@@ -80,16 +80,45 @@ scrape_configs:
 ## Grafana Tips
 
 - Create template variables from labels:
-  - `chain`: `label_values(node_status, chain)`
-  - `node_name`: `label_values(node_status{chain="$chain"}, node_name)`
-  - `node_location`: `label_values(node_status{chain="$chain"}, node_location)`
+  - `chain`: `label_values(ckb_node_status, chain)`
+  - `node_name`: `label_values(ckb_node_status{chain="$chain"}, node_name)`
+  - `node_location`: `label_values(ckb_node_status{chain="$chain"}, node_location)`
 - Filter dashboards by label selectors instead of exporter query parameters.
 
 ## Metrics and RPC Compatibility
 
-All existing RPC methods and all existing gauge families were preserved and refactored into:
+The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
 
-- `app/rpc.py`: RPC methods and timeout/error handling
-- `app/metrics.py`: Gauge definitions and collection
-- `app/main.py`: Flask endpoints
-- `app/config.py`: `.env` + environment config
+| Metric | Source RPC / meaning |
+|---|---|
+| `ckb_node_status` | Node connectivity status from `local_node_info` |
+| `ckb_node_info` | Node info labels from `local_node_info` |
+| `ckb_peers_outbound_count` | Outbound peers from `get_peers` |
+| `ckb_peers_inbound_count` | Inbound peers from `get_peers` |
+| `ckb_peers_light_client_count` | Light client peers from `get_peers` |
+| `ckb_tip_header_info` | Tip header info labels (`block_hash`, `block_number`, `block_timestamp`) |
+| `ckb_tip_block_number` | Tip block number from `get_tip_header` |
+| `ckb_block_commit_transactions` | Tip block committed tx count from `get_block` |
+| `ckb_block_proposal_transactions` | Tip block proposal tx count from `get_block` |
+| `ckb_block_uncles_count` | Tip block uncle count from `get_block` |
+| `ckb_block_interval_seconds` | Interval between tip and previous block (seconds) |
+| `ckb_block_time_since_last_seconds` | Time since tip block timestamp (seconds) |
+| `ckb_miner_client_version` | Miner client version marker from cellbase witness |
+| `ckb_tx_pool_total_tx_size` | Total tx pool size from `tx_pool_info` |
+| `ckb_tx_pool_total_tx_cycles` | Total tx pool cycles from `tx_pool_info` |
+| `ckb_tx_pool_orphan` | Orphan tx count from `tx_pool_info` |
+| `ckb_tx_pool_pending` | Pending tx count from `tx_pool_info` |
+| `ckb_tx_pool_proposed` | Proposed tx count from `tx_pool_info` |
+| `ckb_tx_pool_verify_queue_size` | Verify queue size from `tx_pool_info` |
+| `ckb_epoch_start_number` | Epoch start number from `get_current_epoch` |
+| `ckb_epoch_length` | Epoch length from `get_current_epoch` |
+| `ckb_banned_addresses_total` | Total banned addresses from `get_banned_addresses` |
+| `ckb_banned_bootnodes_count` | Banned bootnode count from `get_banned_addresses` |
+| `ckb_tx_pool_oldest_pending_seconds` | Oldest pending tx age from `get_raw_tx_pool` |
+| `ckb_tx_pool_pending_count` | Pending tx count from `get_raw_tx_pool` |
+| `ckb_tx_pool_max_ancestors_count` | Max pending tx ancestors from `get_raw_tx_pool` |
+| `ckb_fee_rate_mean` | Fee rate mean from `get_fee_rate_statistics` |
+| `ckb_fee_rate_median` | Fee rate median from `get_fee_rate_statistics` |
+| `ckb_block_size_bytes` | Serialized block size |
+| `ckb_estimate_fee_rate` | Estimated fee rate from `estimate_fee_rate` |
+| `ckb_blockchain_difficulty` | Chain difficulty from `get_blockchain_info` |
