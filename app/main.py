@@ -35,7 +35,7 @@ def create_app(config: Config | None = None) -> Flask:
     @app.after_request
     def log_request_end(response: Response) -> Response:
         started_at = getattr(g, "request_started_at", None)
-        duration_ms = (time.time() - started_at) * 1000 if started_at is not None else 0.0
+        duration_ms = (time.time() - started_at) * 1000 if started_at is not None else -1.0
         logger.info(
             "<-- %s %s %s (%.1fms)",
             request.method,
