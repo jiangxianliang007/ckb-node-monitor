@@ -43,6 +43,7 @@
       "id": 2,
       "type": "stat",
       "title": "Total Nodes",
+      "description": "监控的 CKB 节点总数。\n来源：ckb_node_status 指标计数",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -97,6 +98,7 @@
       "id": 3,
       "type": "stat",
       "title": "Online Nodes",
+      "description": "当前在线的节点数。\n来源：ckb_node_status == 1",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -154,6 +156,7 @@
       "id": 4,
       "type": "stat",
       "title": "Offline Nodes",
+      "description": "当前离线的节点数。\n来源：ckb_node_status == 0",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -211,6 +214,7 @@
       "id": 5,
       "type": "stat",
       "title": "Latest Block Number",
+      "description": "所有节点中最大的区块高度。\n来源：max(ckb_tip_block_number)",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -265,6 +269,7 @@
       "id": 6,
       "type": "stat",
       "title": "Block Interval",
+      "description": "最新区块与前一个区块的平均出块间隔（秒）。\n来源：ckb_block_interval_seconds，通过 RPC get_block 计算相邻区块时间戳差值",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -326,6 +331,7 @@
       "id": 7,
       "type": "stat",
       "title": "Avg Fee Rate",
+      "description": "手续费率中位数的平均值（shannons/KB）。\n来源：ckb_fee_rate_median，通过 RPC get_fee_rate_statistics 获取",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -396,6 +402,7 @@
       "id": 9,
       "type": "table",
       "title": "Node Status Table",
+      "description": "节点状态总览表，包含节点名称、IP、区块高度和 CKB 版本。\n数据来自 ckb_node_status、ckb_tip_block_number 和 ckb_node_info 三个指标",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -510,6 +517,7 @@
       "id": 10,
       "type": "piechart",
       "title": "CKB Node Version Distribution",
+      "description": "各节点 CKB 软件版本分布占比。\n来源：ckb_node_info 的 node_version 标签，通过 RPC local_node_info 获取",
       "gridPos": {
         "h": 8,
         "w": 6,
@@ -565,6 +573,7 @@
       "id": 11,
       "type": "piechart",
       "title": "Miner Version Distribution (Time Range)",
+      "description": "时间范围内矿工（出块者）客户端版本占比。\n来源：ckb_miner_client_version 的 client_version 标签，从 cellbase 交易 witness 中提取。\n通过除以节点数去重，确保多节点监控时数据准确",
       "gridPos": {
         "h": 8,
         "w": 6,
@@ -577,7 +586,7 @@
       },
       "targets": [
         {
-          "expr": "count by (client_version) (count_over_time(ckb_miner_client_version{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}[$__range]))",
+          "expr": "sum by (client_version) (count_over_time(ckb_miner_client_version{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}[$__range])) / scalar(count(ckb_node_status{chain=~\"$chain\", node_name=~\"$node_name\"}))",
           "legendFormat": "{{client_version}}",
           "refId": "A",
           "instant": true
@@ -637,6 +646,7 @@
       "id": 13,
       "type": "timeseries",
       "title": "Tip Block Number",
+      "description": "各节点区块高度随时间变化趋势。\n来源：ckb_tip_block_number，通过 RPC get_tip_header 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -713,6 +723,7 @@
       "id": 14,
       "type": "timeseries",
       "title": "Block Interval",
+      "description": "各节点出块间隔随时间变化趋势（秒）。\n来源：ckb_block_interval_seconds，计算相邻区块时间戳差值",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -793,6 +804,7 @@
       "id": 15,
       "type": "timeseries",
       "title": "Block Size",
+      "description": "最新区块大小随时间变化趋势（字节）。\n来源：ckb_block_size_bytes，通过 RPC get_block 获取序列化大小",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -869,6 +881,7 @@
       "id": 16,
       "type": "timeseries",
       "title": "Blockchain Difficulty",
+      "description": "区块链难度随时间变化趋势（Hashes/s）。\n来源：ckb_blockchain_difficulty，通过 RPC get_blockchain_info 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -945,6 +958,7 @@
       "id": 20,
       "type": "timeseries",
       "title": "Uncle Block Count",
+      "description": "各节点最新区块叔块数量。\n来源：ckb_block_uncles_count，通过 RPC get_block 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1021,6 +1035,7 @@
       "id": 21,
       "type": "timeseries",
       "title": "Uncle Rate (4h)",
+      "description": "4小时滑动窗口内的叔块率。\n计算公式：rate(叔块数)[4h] / rate(区块高度)[4h]，反映网络分叉程度",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1114,6 +1129,7 @@
       "id": 18,
       "type": "timeseries",
       "title": "Peers Outbound",
+      "description": "各节点出站对等连接数。\n来源：ckb_peers_outbound_count，通过 RPC get_peers 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1190,6 +1206,7 @@
       "id": 19,
       "type": "timeseries",
       "title": "Peers Inbound",
+      "description": "各节点入站对等连接数。\n来源：ckb_peers_inbound_count，通过 RPC get_peers 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1266,6 +1283,7 @@
       "id": 22,
       "type": "timeseries",
       "title": "Light Client Connections",
+      "description": "各节点连接的轻客户端数量。\n来源：ckb_peers_light_client_count，通过 RPC get_peers 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1342,6 +1360,7 @@
       "id": 23,
       "type": "timeseries",
       "title": "Banned Addresses",
+      "description": "被封禁的地址总数。\n来源：ckb_banned_addresses_total，通过 RPC get_banned_addresses 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1440,6 +1459,7 @@
       "id": 25,
       "type": "timeseries",
       "title": "Tx Pool Pending",
+      "description": "交易池待处理交易数量。\n来源：ckb_tx_pool_pending，通过 RPC tx_pool_info 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1516,6 +1536,7 @@
       "id": 26,
       "type": "timeseries",
       "title": "Tx Pool Proposed",
+      "description": "交易池提议交易数量。\n来源：ckb_tx_pool_proposed，通过 RPC tx_pool_info 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1592,6 +1613,7 @@
       "id": 27,
       "type": "timeseries",
       "title": "Tx Pool Size",
+      "description": "交易池总大小。\n来源：ckb_tx_pool_total_tx_size，通过 RPC tx_pool_info 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1668,6 +1690,7 @@
       "id": 28,
       "type": "timeseries",
       "title": "Oldest Pending Tx Age",
+      "description": "待处理交易信息。\n来源：通过 RPC get_raw_tx_pool 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1769,6 +1792,7 @@
       "id": 30,
       "type": "timeseries",
       "title": "Fee Rate",
+      "description": "手续费率均值/中位数随时间变化趋势。\n来源：ckb_fee_rate_mean / ckb_fee_rate_median，通过 RPC get_fee_rate_statistics 获取。\n预估手续费率来源：ckb_estimate_fee_rate，通过 RPC estimate_fee_rate 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1855,6 +1879,7 @@
       "id": 31,
       "type": "timeseries",
       "title": "Block Transactions",
+      "description": "区块交易数量随时间变化趋势（提交/提议）。\n来源：ckb_block_commit_transactions / ckb_block_proposal_transactions，通过 RPC get_block 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1936,6 +1961,7 @@
       "id": 32,
       "type": "timeseries",
       "title": "Epoch Info",
+      "description": "当前 Epoch 信息。\n来源：通过 RPC get_current_epoch 获取",
       "gridPos": {
         "h": 8,
         "w": 24,
