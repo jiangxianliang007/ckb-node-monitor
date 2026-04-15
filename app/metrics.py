@@ -102,6 +102,9 @@ class MetricsCollector:
 
     def collect(self) -> dict[str, object]:
         label_values = self._label_values()
+        self.Node_Get_LastBlockInfo._metrics.clear()
+        self.Node_Get_client_version._metrics.clear()
+        self.Node_Get_LocalInfo._metrics.clear()
 
         local_info = self.rpc_client.get_node_info()
         self.Node_Status.labels(*label_values).set(float(local_info["node_status"]))
