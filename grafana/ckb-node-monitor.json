@@ -418,6 +418,12 @@
           "refId": "B",
           "instant": true,
           "format": "table"
+        },
+        {
+          "expr": "ckb_node_info{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "refId": "C",
+          "instant": true,
+          "format": "table"
         }
       ],
       "transformations": [
@@ -432,19 +438,51 @@
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "__name__": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "chain": true,
+              "chain 1": true,
+              "chain 2": true,
+              "chain 3": true,
+              "node_type": true,
+              "node_type 1": true,
+              "node_type 2": true,
+              "node_type 3": true,
+              "node_ip": true,
+              "node_ip 1": true,
+              "node_ip 2": true,
+              "node_ip 3": true,
+              "node_location": true,
+              "node_location 1": true,
+              "node_location 2": true,
+              "node_location 3": true,
+              "Value #A": true,
+              "Value #C": true,
+              "node_address": true,
+              "node_id": true,
+              "job": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "instance": true,
+              "instance 1": true,
+              "instance 2": true,
+              "instance 3": true
             },
             "indexByName": {
-              "chain": 0,
-              "node_name": 1,
-              "node_type": 2,
-              "node_location": 3,
-              "Value": 4,
-              "Value #B": 5
+              "node_name": 0,
+              "Value #B": 1,
+              "node_version": 2
             },
             "renameByName": {
-              "Value": "status",
-              "Value #B": "block_number"
+              "Value #B": "block_number",
+              "node_version": "ckb_version"
             }
           }
         }
@@ -455,38 +493,7 @@
             "mode": "thresholds"
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "status"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "type": "value",
-                    "options": {
-                      "0": {
-                        "text": "\ud83d\udd34 Offline",
-                        "color": "red"
-                      },
-                      "1": {
-                        "text": "\ud83d\udfe2 Online",
-                        "color": "green"
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "id": "custom.width",
-                "value": 160
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "options": {
         "showHeader": true,
@@ -556,7 +563,7 @@
     {
       "id": 11,
       "type": "piechart",
-      "title": "Miner Version (Block Producer)",
+      "title": "Miner Version Distribution (Time Range)",
       "gridPos": {
         "h": 8,
         "w": 6,
@@ -569,7 +576,7 @@
       },
       "targets": [
         {
-          "expr": "count by (client_version) (ckb_miner_client_version{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"} == 1)",
+          "expr": "count by (client_version) (count_over_time(ckb_miner_client_version{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}[$__range]))",
           "legendFormat": "{{client_version}}",
           "refId": "A",
           "instant": true
