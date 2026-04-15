@@ -75,7 +75,7 @@ class RpcGet:
         replay = self._call(42, "get_block", [block_hash, "0x0"])
         if not replay:
             return {"block_size": -1}
-        return {"block_size": len(replay)}
+        return {"block_size": len(str(replay.get("value", "")))}
 
     def get_BlockDetail(self, block_hash: str) -> dict[str, int | str]:
         replay = self._call(2, "get_block", [block_hash])
