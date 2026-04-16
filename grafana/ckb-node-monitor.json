@@ -461,7 +461,7 @@
               "node_type 1": true,
               "node_type 2": true,
               "node_type 3": true,
-              "node_ip 1": true,
+              "node_ip 1": false,
               "node_ip 2": true,
               "node_ip 3": true,
               "node_location": true,
@@ -483,14 +483,14 @@
             },
             "indexByName": {
               "node_name": 0,
-              "node_ip": 1,
+              "node_ip 1": 1,
               "Value #B": 2,
               "node_version": 3
             },
             "renameByName": {
               "Value #B": "block_number",
               "node_version": "ckb_version",
-              "node_ip": "node_ip"
+              "node_ip 1": "node_ip"
             }
           }
         }
