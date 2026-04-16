@@ -824,7 +824,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes",
+          "unit": "decbytes",
           "color": {
             "mode": "palette-classic"
           },
@@ -1633,7 +1633,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes",
+          "unit": "decbytes",
           "color": {
             "mode": "palette-classic"
           },
@@ -1772,6 +1772,237 @@
       }
     },
     {
+      "id": 33,
+      "type": "timeseries",
+      "title": "Tx Pool Verify Queue Size",
+      "description": "交易池验证队列大小。\n来源：ckb_tx_pool_verify_queue_size，通过 RPC tx_pool_info 获取",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 74
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "targets": [
+        {
+          "expr": "ckb_tx_pool_verify_queue_size{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "legendFormat": "{{node_name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 34,
+      "type": "timeseries",
+      "title": "Tx Pool Orphan",
+      "description": "交易池孤儿交易数量。\n来源：ckb_tx_pool_orphan，通过 RPC tx_pool_info 获取",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 74
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "targets": [
+        {
+          "expr": "ckb_tx_pool_orphan{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "legendFormat": "{{node_name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 35,
+      "type": "timeseries",
+      "title": "Tx Pool Max Ancestors Count",
+      "description": "交易池最大祖先数量。\n来源：ckb_tx_pool_max_ancestors_count，通过 RPC get_raw_tx_pool 获取",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 82
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "targets": [
+        {
+          "expr": "ckb_tx_pool_max_ancestors_count{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "legendFormat": "{{node_name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
       "id": 29,
       "type": "row",
       "title": "Fee Rate & Economics",
@@ -1779,7 +2010,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 74
+        "y": 90
       },
       "collapsed": false,
       "panels": [],
@@ -1797,7 +2028,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 75
+        "y": 91
       },
       "datasource": {
         "type": "prometheus",
@@ -1884,7 +2115,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 75
+        "y": 91
       },
       "datasource": {
         "type": "prometheus",
@@ -1966,7 +2197,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 99
       },
       "datasource": {
         "type": "prometheus",
