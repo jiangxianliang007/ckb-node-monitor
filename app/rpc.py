@@ -19,6 +19,8 @@ class RpcGet:
         self.timeout = timeout
         self.bootnodes = bootnodes
         self.session = requests.Session()
+        self._dao_cache: dict[str, float] = {"dao_deposit_ckb": -1.0, "dao_depositors_count": -1.0}
+        self._dao_cache_time: float = 0.0
 
     def _call(self, rpc_id: int, method: str, params: list[object]) -> Mapping[str, object] | None:
         payload = {"id": rpc_id, "jsonrpc": "2.0", "method": method, "params": params}
@@ -54,6 +56,9 @@ class RpcGet:
 
     def get_dao_statistics(self) -> dict[str, float]:
         default_stats = {"dao_deposit_ckb": -1.0, "dao_depositors_count": -1.0}
+        if time.time() - self._dao_cache_time < 300:
+            return self._dao_cache
+
         consensus = self.get_consensus()
         dao_type_hash = str(consensus.get("dao_type_hash", "-1"))
         if not dao_type_hash.startswith("0x") or len(dao_type_hash) <= 2:
@@ -63,6 +68,7 @@ class RpcGet:
         search_key = {
             "script": {"code_hash": dao_type_hash, "hash_type": "type", "args": "0x"},
             "script_type": "type",
+            "script_search_mode": "prefix",
         }
         capacity_replay = self._call(42, "get_cells_capacity", [search_key])
         if not capacity_replay:
@@ -105,7 +111,10 @@ class RpcGet:
                 return default_stats
             cursor = str(next_cursor)
 
-        return {"dao_deposit_ckb": dao_deposit_ckb, "dao_depositors_count": float(len(lock_scripts))}
+        result = {"dao_deposit_ckb": dao_deposit_ckb, "dao_depositors_count": float(len(lock_scripts))}
+        self._dao_cache = result
+        self._dao_cache_time = time.time()
+        return result
 
     def get_LastPoolInfo(self) -> dict[str, int]:
         replay = self._call(2, "tx_pool_info", [])
