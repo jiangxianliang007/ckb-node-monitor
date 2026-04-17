@@ -9,34 +9,43 @@ class RpcGetStub(RpcGet):
         self.responses = responses
 
     def _call(self, _rpc_id, method, _params):
-        return self.responses.get(method)
+        response = self.responses.get(method)
+        if isinstance(response, list):
+            if not response:
+                return None
+            return response.pop(0)
+        return response
 
 
 class RpcGetTest(unittest.TestCase):
-    def test_get_tip_economics_parses_dao(self):
+    def test_get_dao_statistics_from_rich_indexer(self):
+        first_page = [{"output": {"lock": {"code_hash": "0x1", "hash_type": "type", "args": "0xabc"}}} for _ in range(100)]
+        second_page = [
+            {"output": {"lock": {"code_hash": "0x1", "hash_type": "type", "args": "0xabc"}}},
+            {"output": {"lock": {"code_hash": "0x2", "hash_type": "type", "args": "0xdef"}}},
+        ]
         rpc = RpcGetStub(
             {
-                "get_tip_header": {
-                    "dao": "0xb5a3e047474401001bc476b9ee573000c0c387962a38000000febffacf030000"
-                }
+                "get_consensus": {"epoch_duration_target": "0x3840", "dao_type_hash": "0xdao_hash"},
+                "get_cells_capacity": {"capacity": "0x2540be400"},
+                "get_cells": [{"objects": first_page, "last_cursor": "0xcursor"}, {"objects": second_page, "last_cursor": "0xend"}],
             }
         )
-        economics = rpc.get_tip_economics()
-        self.assertAlmostEqual(economics["total_issuance_ckb"], 3565479.15981749)
-        self.assertAlmostEqual(economics["dao_deposit_ckb"], 617555.6526176)
-        self.assertEqual(economics["occupied_capacity_ckb"], 41918.0)
+        statistics = rpc.get_dao_statistics()
+        self.assertEqual(statistics["dao_deposit_ckb"], 100.0)
+        self.assertEqual(statistics["dao_depositors_count"], 2.0)
 
     def test_get_consensus_epoch_duration_target(self):
-        rpc = RpcGetStub({"get_consensus": {"epoch_duration_target": "0x3840"}})
+        rpc = RpcGetStub({"get_consensus": {"epoch_duration_target": "0x3840", "dao_type_hash": "0xdao_hash"}})
         consensus = rpc.get_consensus()
         self.assertEqual(consensus["epoch_duration_target"], 14400)
+        self.assertEqual(consensus["dao_type_hash"], "0xdao_hash")
 
-    def test_get_tip_economics_handles_invalid_dao(self):
-        rpc = RpcGetStub({"get_tip_header": {"dao": "0x1234"}})
-        economics = rpc.get_tip_economics()
-        self.assertEqual(economics["total_issuance_ckb"], -1.0)
-        self.assertEqual(economics["dao_deposit_ckb"], -1.0)
-        self.assertEqual(economics["occupied_capacity_ckb"], -1.0)
+    def test_get_dao_statistics_handles_missing_rich_indexer(self):
+        rpc = RpcGetStub({"get_consensus": {"epoch_duration_target": "0x3840", "dao_type_hash": "0xdao_hash"}})
+        statistics = rpc.get_dao_statistics()
+        self.assertEqual(statistics["dao_deposit_ckb"], -1.0)
+        self.assertEqual(statistics["dao_depositors_count"], -1.0)
 
 
 if __name__ == "__main__":

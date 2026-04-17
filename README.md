@@ -126,7 +126,7 @@ Dashboard features:
 - **Peer network**: Inbound/outbound peers, light clients, banned addresses
 - **Transaction pool**: Pending/proposed txs, pool size, oldest pending age
 - **Fee economics**: Fee rate mean/median/estimated, block transaction counts, epoch info
-- **Chain economics**: Total issuance, DAO deposit, occupied capacity (Knowledge Size), network hashrate
+- **Chain economics**: DAO deposit, DAO depositors count, network hashrate
 
 ## Metrics and RPC Compatibility
 
@@ -165,7 +165,8 @@ The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
 | `ckb_block_size_bytes` | Serialized block size |
 | `ckb_estimate_fee_rate` | Estimated fee rate from `estimate_fee_rate` |
 | `ckb_blockchain_difficulty` | Chain difficulty from `get_blockchain_info` |
-| `ckb_total_issuance` | CKB total issuance in CKB from `get_tip_header.dao` (C_i) |
-| `ckb_dao_deposit` | Nervos DAO total deposit in CKB from `get_tip_header.dao` (S_i) |
-| `ckb_occupied_capacity` | On-chain occupied capacity (Knowledge Size) in CKB from `get_tip_header.dao` (U_i) |
+| `ckb_dao_deposit` | Nervos DAO total deposit in CKB from rich-indexer RPC `get_cells_capacity` (DAO type script) |
+| `ckb_dao_depositors_count` | Nervos DAO unique depositor addresses count from rich-indexer RPC `get_cells` (unique lock scripts) |
 | `ckb_network_hashrate` | Estimated network hashrate in H/s from difficulty and epoch average block time |
+
+> DAO metrics (`ckb_dao_deposit`, `ckb_dao_depositors_count`) require rich-indexer RPC support on the node. If unavailable, exporter reports `-1` and continues running.

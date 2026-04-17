@@ -89,15 +89,14 @@ class FakeRpcGet:
     def get_difficulty(self):
         return {"difficulty": 1000}
 
-    def get_tip_economics(self):
+    def get_dao_statistics(self):
         return {
-            "total_issuance_ckb": 3565479.15981749,
             "dao_deposit_ckb": 617555.6526176,
-            "occupied_capacity_ckb": 41918.0,
+            "dao_depositors_count": 3,
         }
 
     def get_consensus(self):
-        return {"epoch_duration_target": 14400}
+        return {"epoch_duration_target": 14400, "dao_type_hash": "0xdao_hash"}
 
 
 class MetricsCollectorTest(unittest.TestCase):
@@ -129,9 +128,8 @@ class MetricsCollectorTest(unittest.TestCase):
         self.assertNotIn('node_id="node-a"', output)
 
         label_values = ("mainnet", "test-node", "public", "127.0.0.1", "us-east-1")
-        self.assertAlmostEqual(collector.total_issuance.labels(*label_values)._value.get(), 3565479.15981749)
         self.assertAlmostEqual(collector.dao_deposit.labels(*label_values)._value.get(), 617555.6526176)
-        self.assertEqual(collector.occupied_capacity.labels(*label_values)._value.get(), 41918.0)
+        self.assertEqual(collector.dao_depositors_count.labels(*label_values)._value.get(), 3.0)
         self.assertAlmostEqual(collector.network_hashrate.labels(*label_values)._value.get(), 125.0)
 
 
