@@ -52,40 +52,60 @@ class RpcGet:
             "last_block_timestamp": convert_int(str(replay.get("timestamp", "-1"))),
         }
 
-    def get_tip_economics(self) -> dict[str, float]:
-        replay = self._call(2, "get_tip_header", [])
-        if not replay:
-            return {
-                "total_issuance_ckb": -1.0,
-                "dao_deposit_ckb": -1.0,
-                "occupied_capacity_ckb": -1.0,
-            }
+    def get_dao_statistics(self) -> dict[str, float]:
+        default_stats = {"dao_deposit_ckb": -1.0, "dao_depositors_count": -1.0}
+        consensus = self.get_consensus()
+        dao_type_hash = str(consensus.get("dao_type_hash", "-1"))
+        if not dao_type_hash.startswith("0x") or len(dao_type_hash) <= 2:
+            logger.warning("Rich-indexer RPC not available or dao_type_hash missing")
+            return default_stats
 
-        dao_raw = str(replay.get("dao", ""))
-        dao_hex = dao_raw[2:] if dao_raw.startswith("0x") else dao_raw
-        if len(dao_hex) != 64:
-            return {
-                "total_issuance_ckb": -1.0,
-                "dao_deposit_ckb": -1.0,
-                "occupied_capacity_ckb": -1.0,
-            }
+        search_key = {
+            "script": {"code_hash": dao_type_hash, "hash_type": "type", "args": "0x"},
+            "script_type": "type",
+        }
+        capacity_replay = self._call(42, "get_cells_capacity", [search_key])
+        if not capacity_replay:
+            logger.warning("Rich-indexer RPC get_cells_capacity not available")
+            return default_stats
 
         try:
-            dao_bytes = bytes.fromhex(dao_hex)
-            total_issuance = struct.unpack("<Q", dao_bytes[0:8])[0]
-            dao_deposit = struct.unpack("<Q", dao_bytes[16:24])[0]
-            occupied_capacity = struct.unpack("<Q", dao_bytes[24:32])[0]
-            return {
-                "total_issuance_ckb": total_issuance / SHANNONS_PER_CKB,
-                "dao_deposit_ckb": dao_deposit / SHANNONS_PER_CKB,
-                "occupied_capacity_ckb": occupied_capacity / SHANNONS_PER_CKB,
-            }
-        except (ValueError, TypeError, struct.error):
-            return {
-                "total_issuance_ckb": -1.0,
-                "dao_deposit_ckb": -1.0,
-                "occupied_capacity_ckb": -1.0,
-            }
+            dao_deposit_ckb = convert_int(str(capacity_replay.get("capacity", "-1"))) / SHANNONS_PER_CKB
+        except (TypeError, ValueError):
+            logger.warning("Failed parsing DAO deposit capacity from rich-indexer response")
+            return default_stats
+
+        lock_scripts: set[str] = set()
+        cursor: str | None = None
+        page_size = 100
+        while True:
+            cells_replay = self._call(42, "get_cells", [search_key, "asc", "0x64", cursor])
+            if not cells_replay:
+                logger.warning("Rich-indexer RPC get_cells not available")
+                return default_stats
+
+            objects = cells_replay.get("objects", [])
+            if not isinstance(objects, list):
+                logger.warning("Invalid get_cells response: objects is not a list")
+                return default_stats
+
+            for cell in objects:
+                output = cell.get("output", {}) if isinstance(cell, Mapping) else {}
+                lock = output.get("lock", {}) if isinstance(output, Mapping) else {}
+                if not isinstance(lock, Mapping):
+                    continue
+                lock_scripts.add(f"{lock.get('code_hash', '')}|{lock.get('hash_type', '')}|{lock.get('args', '')}")
+
+            if len(objects) < page_size:
+                break
+
+            next_cursor = cells_replay.get("last_cursor")
+            if not next_cursor:
+                logger.warning("Invalid get_cells response: missing last_cursor when paging")
+                return default_stats
+            cursor = str(next_cursor)
+
+        return {"dao_deposit_ckb": dao_deposit_ckb, "dao_depositors_count": float(len(lock_scripts))}
 
     def get_LastPoolInfo(self) -> dict[str, int]:
         replay = self._call(2, "tx_pool_info", [])
@@ -319,8 +339,11 @@ class RpcGet:
             return {"difficulty": -1}
         return {"difficulty": convert_int(str(replay.get("difficulty", "-1")))}
 
-    def get_consensus(self) -> dict[str, int]:
+    def get_consensus(self) -> dict[str, int | str]:
         replay = self._call(42, "get_consensus", [])
         if not replay:
-            return {"epoch_duration_target": -1}
-        return {"epoch_duration_target": convert_int(str(replay.get("epoch_duration_target", "-1")))}
+            return {"epoch_duration_target": -1, "dao_type_hash": "-1"}
+        return {
+            "epoch_duration_target": convert_int(str(replay.get("epoch_duration_target", "-1"))),
+            "dao_type_hash": str(replay.get("dao_type_hash", "-1")),
+        }

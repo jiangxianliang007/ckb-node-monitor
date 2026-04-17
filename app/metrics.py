@@ -90,10 +90,11 @@ class MetricsCollector:
         self.Block_Size = Gauge("ckb_block_size_bytes", "Block serialized size in bytes", BASE_LABELS, registry=self.registry)
         self.Estimate_fee_rate = Gauge("ckb_estimate_fee_rate", "Estimated fee rate (estimate_fee_rate)", BASE_LABELS, registry=self.registry)
         self.difficulty = Gauge("ckb_blockchain_difficulty", "Blockchain difficulty (get_blockchain_info)", BASE_LABELS, registry=self.registry)
-        self.total_issuance = Gauge("ckb_total_issuance", "CKB total issuance in CKB", BASE_LABELS, registry=self.registry)
-        self.dao_deposit = Gauge("ckb_dao_deposit", "Nervos DAO total deposit in CKB", BASE_LABELS, registry=self.registry)
-        self.occupied_capacity = Gauge(
-            "ckb_occupied_capacity", "On-chain occupied capacity (Knowledge Size) in CKB", BASE_LABELS, registry=self.registry
+        self.dao_deposit = Gauge(
+            "ckb_dao_deposit", "Nervos DAO total deposit in CKB (from rich-indexer)", BASE_LABELS, registry=self.registry
+        )
+        self.dao_depositors_count = Gauge(
+            "ckb_dao_depositors_count", "Nervos DAO unique depositor addresses count", BASE_LABELS, registry=self.registry
         )
         self.network_hashrate = Gauge("ckb_network_hashrate", "Estimated CKB network hashrate (H/s)", BASE_LABELS, registry=self.registry)
 
@@ -203,10 +204,9 @@ class MetricsCollector:
         difficulty_value = int(difficulty["difficulty"])
         self.difficulty.labels(*label_values).set(float(difficulty_value))
 
-        economics = self.rpc_client.get_tip_economics()
-        self.total_issuance.labels(*label_values).set(float(economics["total_issuance_ckb"]))
-        self.dao_deposit.labels(*label_values).set(float(economics["dao_deposit_ckb"]))
-        self.occupied_capacity.labels(*label_values).set(float(economics["occupied_capacity_ckb"]))
+        dao_statistics = self.rpc_client.get_dao_statistics()
+        self.dao_deposit.labels(*label_values).set(float(dao_statistics["dao_deposit_ckb"]))
+        self.dao_depositors_count.labels(*label_values).set(float(dao_statistics["dao_depositors_count"]))
 
         consensus = self.rpc_client.get_consensus()
         epoch_duration_target = int(consensus["epoch_duration_target"])
