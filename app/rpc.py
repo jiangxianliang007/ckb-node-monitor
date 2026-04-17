@@ -69,6 +69,10 @@ class RpcGet:
             "script": {"code_hash": dao_type_hash, "hash_type": "type", "args": "0x"},
             "script_type": "type",
             "script_search_mode": "prefix",
+            "filter": {
+                "output_data": "0x0000000000000000",
+                "output_data_filter_mode": "exact",
+            },
         }
         capacity_replay = self._call(42, "get_cells_capacity", [search_key])
         if not capacity_replay:
