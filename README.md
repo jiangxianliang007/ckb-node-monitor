@@ -122,11 +122,11 @@ Dashboard features:
 - **Variable selectors**: Filter by chain, node type, and individual nodes
 - **Node overview**: Total/online/offline node counts with status table
 - **Version distribution**: Pie charts showing CKB node version and miner version proportions
-- **Block performance**: Block height, interval, size, and difficulty trends
+- **Block performance**: Block height, interval, size, difficulty, and network hashrate trends
 - **Peer network**: Inbound/outbound peers, light clients, banned addresses
 - **Transaction pool**: Pending/proposed txs, pool size, oldest pending age
 - **Fee economics**: Fee rate mean/median/estimated, block transaction counts, epoch info
-- **Chain economics**: DAO deposit, DAO depositors count, network hashrate
+- **Chain economics**: DAO deposit, DAO depositors count
 
 ## Metrics and RPC Compatibility
 
