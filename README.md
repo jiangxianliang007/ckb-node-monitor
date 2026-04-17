@@ -34,21 +34,12 @@ Pre-built multi-arch images (amd64/arm64) are available on GHCR:
 docker pull ghcr.io/jiangxianliang007/ckb-node-monitor:latest
 
 # Container always listens on 8090 internally.
-# Default host port 8090:
+# Replace <your-ckb-node-rpc-host> with your CKB node RPC host.
 docker run -d \
-  -e CKB_NODE_RPC_URL=http://host.docker.internal:8114 \
+  -e CKB_NODE_RPC_URL=http://<your-ckb-node-rpc-host>:8114 \
   -e CHAIN=mainnet \
   -e NODE_NAME=mainnet-node-1 \
   -p 8090:8090 \
-  --restart=unless-stopped \
-  ghcr.io/jiangxianliang007/ckb-node-monitor:latest
-
-# Custom host port 8166 (maps to container 8090):
-docker run -d \
-  -e CKB_NODE_RPC_URL=http://host.docker.internal:8114 \
-  -e CHAIN=mainnet \
-  -e NODE_NAME=mainnet-node-1 \
-  -p 8166:8090 \
   --restart=unless-stopped \
   ghcr.io/jiangxianliang007/ckb-node-monitor:latest
 ```
@@ -60,7 +51,7 @@ Supports both x86_64 and ARM64 (e.g. Apple Silicon, AWS Graviton).
 ```bash
 docker build -t ckb-node-monitor .
 docker run -d \
-  -e CKB_NODE_RPC_URL=http://host.docker.internal:8114 \
+  -e CKB_NODE_RPC_URL=http://<your-ckb-node-rpc-host>:8114 \
   -e CHAIN=mainnet \
   -e NODE_NAME=mainnet-node-1 \
   -p 8090:8090 \
