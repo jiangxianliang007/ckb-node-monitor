@@ -31,6 +31,13 @@ class RpcGetTest(unittest.TestCase):
         consensus = rpc.get_consensus()
         self.assertEqual(consensus["epoch_duration_target"], 14400)
 
+    def test_get_tip_economics_handles_invalid_dao(self):
+        rpc = RpcGetStub({"get_tip_header": {"dao": "0x1234"}})
+        economics = rpc.get_tip_economics()
+        self.assertEqual(economics["total_issuance_ckb"], -1.0)
+        self.assertEqual(economics["dao_deposit_ckb"], -1.0)
+        self.assertEqual(economics["occupied_capacity_ckb"], -1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
