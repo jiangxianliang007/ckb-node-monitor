@@ -69,7 +69,7 @@ class FakeRpcGet:
         }
 
     def get_current_epoch(self):
-        return {"start_number": 0, "length": 1}
+        return {"start_number": 0, "length": 1800}
 
     def get_banned_addresses(self):
         return {"ban_all": 0, "ban_bootnode": 0}
@@ -87,7 +87,17 @@ class FakeRpcGet:
         return {"estimate_fee_rate": 0}
 
     def get_difficulty(self):
-        return {"difficulty": 0}
+        return {"difficulty": 1000}
+
+    def get_tip_economics(self):
+        return {
+            "total_issuance_ckb": 3565479.15981749,
+            "dao_deposit_ckb": 617555.6526176,
+            "occupied_capacity_ckb": 41918.0,
+        }
+
+    def get_consensus(self):
+        return {"epoch_duration_target": 14400}
 
 
 class MetricsCollectorTest(unittest.TestCase):
@@ -117,6 +127,12 @@ class MetricsCollectorTest(unittest.TestCase):
         self.assertNotIn('client_version="0.201.0"', output)
         self.assertIn('node_id="node-b"', output)
         self.assertNotIn('node_id="node-a"', output)
+
+        label_values = ("mainnet", "test-node", "public", "127.0.0.1", "us-east-1")
+        self.assertAlmostEqual(collector.total_issuance.labels(*label_values)._value.get(), 3565479.15981749)
+        self.assertAlmostEqual(collector.dao_deposit.labels(*label_values)._value.get(), 617555.6526176)
+        self.assertEqual(collector.occupied_capacity.labels(*label_values)._value.get(), 41918.0)
+        self.assertAlmostEqual(collector.network_hashrate.labels(*label_values)._value.get(), 125.0)
 
 
 if __name__ == "__main__":

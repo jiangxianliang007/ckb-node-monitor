@@ -10,6 +10,7 @@ import requests
 from .utils import convert_int
 
 logger = logging.getLogger(__name__)
+SHANNONS_PER_CKB = 100_000_000
 
 
 class RpcGet:
@@ -50,6 +51,41 @@ class RpcGet:
             "last_block_hash": str(replay.get("hash", "-1")),
             "last_block_timestamp": convert_int(str(replay.get("timestamp", "-1"))),
         }
+
+    def get_tip_economics(self) -> dict[str, float]:
+        replay = self._call(2, "get_tip_header", [])
+        if not replay:
+            return {
+                "total_issuance_ckb": -1.0,
+                "dao_deposit_ckb": -1.0,
+                "occupied_capacity_ckb": -1.0,
+            }
+
+        dao_raw = str(replay.get("dao", ""))
+        dao_hex = dao_raw[2:] if dao_raw.startswith("0x") else dao_raw
+        if len(dao_hex) != 64:
+            return {
+                "total_issuance_ckb": -1.0,
+                "dao_deposit_ckb": -1.0,
+                "occupied_capacity_ckb": -1.0,
+            }
+
+        try:
+            dao_bytes = bytes.fromhex(dao_hex)
+            total_issuance = struct.unpack("<Q", dao_bytes[0:8])[0]
+            dao_deposit = struct.unpack("<Q", dao_bytes[16:24])[0]
+            occupied_capacity = struct.unpack("<Q", dao_bytes[24:32])[0]
+            return {
+                "total_issuance_ckb": total_issuance / SHANNONS_PER_CKB,
+                "dao_deposit_ckb": dao_deposit / SHANNONS_PER_CKB,
+                "occupied_capacity_ckb": occupied_capacity / SHANNONS_PER_CKB,
+            }
+        except (ValueError, TypeError, struct.error):
+            return {
+                "total_issuance_ckb": -1.0,
+                "dao_deposit_ckb": -1.0,
+                "occupied_capacity_ckb": -1.0,
+            }
 
     def get_LastPoolInfo(self) -> dict[str, int]:
         replay = self._call(2, "tx_pool_info", [])
@@ -282,3 +318,9 @@ class RpcGet:
         if not replay:
             return {"difficulty": -1}
         return {"difficulty": convert_int(str(replay.get("difficulty", "-1")))}
+
+    def get_consensus(self) -> dict[str, int]:
+        replay = self._call(42, "get_consensus", [])
+        if not replay:
+            return {"epoch_duration_target": -1}
+        return {"epoch_duration_target": convert_int(str(replay.get("epoch_duration_target", "-1")))}
