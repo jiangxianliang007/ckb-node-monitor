@@ -153,6 +153,7 @@ The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
 | `ckb_tx_pool_pending` | Pending tx count from `tx_pool_info` |
 | `ckb_tx_pool_proposed` | Proposed tx count from `tx_pool_info` |
 | `ckb_tx_pool_verify_queue_size` | Verify queue size from `tx_pool_info` |
+| `ckb_epoch_number` | Epoch number from `get_current_epoch` |
 | `ckb_epoch_start_number` | Epoch start number from `get_current_epoch` |
 | `ckb_epoch_length` | Epoch length from `get_current_epoch` |
 | `ckb_banned_addresses_total` | Total banned addresses from `get_banned_addresses` |

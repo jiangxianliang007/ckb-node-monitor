@@ -77,6 +77,7 @@ class MetricsCollector:
         self.current_epoch_start_number = Gauge(
             "ckb_epoch_start_number", "Current epoch start number (get_current_epoch)", BASE_LABELS, registry=self.registry
         )
+        self.current_epoch_number = Gauge("ckb_epoch_number", "Current epoch number (get_current_epoch)", BASE_LABELS, registry=self.registry)
         self.current_epoch_length = Gauge("ckb_epoch_length", "Current epoch length (get_current_epoch)", BASE_LABELS, registry=self.registry)
         self.Node_ban_all = Gauge("ckb_banned_addresses_total", "Total banned addresses (get_banned_addresses)", BASE_LABELS, registry=self.registry)
         self.Node_ban_bootnode = Gauge("ckb_banned_bootnodes_count", "Banned bootnodes count (get_banned_addresses)", BASE_LABELS, registry=self.registry)
@@ -178,6 +179,7 @@ class MetricsCollector:
         self.Node_verify_queue_size.labels(*label_values).set(float(pool["verify_queue_size"]))
 
         epoch = self.rpc_client.get_current_epoch()
+        self.current_epoch_number.labels(*label_values).set(float(epoch["number"]))
         self.current_epoch_start_number.labels(*label_values).set(float(epoch["start_number"]))
         self.current_epoch_length.labels(*label_values).set(float(epoch["length"]))
 

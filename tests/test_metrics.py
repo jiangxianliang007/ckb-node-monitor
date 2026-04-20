@@ -69,7 +69,7 @@ class FakeRpcGet:
         }
 
     def get_current_epoch(self):
-        return {"start_number": 0, "length": 1800}
+        return {"number": 42, "start_number": 0, "length": 1800}
 
     def get_banned_addresses(self):
         return {"ban_all": 0, "ban_bootnode": 0}
@@ -128,6 +128,7 @@ class MetricsCollectorTest(unittest.TestCase):
         self.assertNotIn('node_id="node-a"', output)
 
         label_values = ("mainnet", "test-node", "public", "127.0.0.1", "us-east-1")
+        self.assertEqual(collector.current_epoch_number.labels(*label_values)._value.get(), 42.0)
         self.assertAlmostEqual(collector.dao_deposit.labels(*label_values)._value.get(), 617555.6526176)
         self.assertEqual(collector.dao_depositors_count.labels(*label_values)._value.get(), 3.0)
         self.assertAlmostEqual(collector.network_hashrate.labels(*label_values)._value.get(), 125.0)
