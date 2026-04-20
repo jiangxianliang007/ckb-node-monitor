@@ -344,7 +344,7 @@
       },
       "targets": [
         {
-          "expr": "ckb_network_hashrate{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "expr": "avg(ckb_network_hashrate{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
           "refId": "A"
         }
       ],
