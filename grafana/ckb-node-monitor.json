@@ -330,8 +330,8 @@
     {
       "id": 7,
       "type": "stat",
-      "title": "Knowledge Size",
-      "description": "链上 Knowledge Size（所有 Live Cells 占用的总容量）。\n来源：get_tip_header 返回的 dao 字段中的 Occupied Capacity。\n在 CKB 中 1 CKB = 1 Byte 链上存储空间",
+      "title": "Network Hashrate",
+      "description": "估算的全网算力。\n来源：ckb_network_hashrate，通过 difficulty / avg_block_time 计算",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -344,7 +344,7 @@
       },
       "targets": [
         {
-          "expr": "ckb_knowledge_size_bytes{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "expr": "ckb_network_hashrate{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
           "refId": "A"
         }
       ],
@@ -364,7 +364,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "decbytes",
+          "unit": "Hs",
           "color": {
             "mode": "palette-classic"
           },
