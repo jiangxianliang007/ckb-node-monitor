@@ -331,7 +331,7 @@
       "id": 7,
       "type": "stat",
       "title": "Avg Fee Rate",
-      "description": "手续费率中位数的平均值（shannons/KB）。\n来源：ckb_fee_rate_median，通过 RPC get_fee_rate_statistics 获取",
+      "description": "预估手续费率的平均值（shannons/KB）。\n来源：ckb_estimate_fee_rate，通过 RPC estimate_fee_rate 获取",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -344,7 +344,7 @@
       },
       "targets": [
         {
-          "expr": "avg(ckb_fee_rate_median{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
+          "expr": "avg(ckb_estimate_fee_rate{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
           "refId": "A"
         }
       ],
@@ -2190,12 +2190,12 @@
     },
     {
       "id": 32,
-      "type": "timeseries",
-      "title": "Epoch Info",
-      "description": "当前 Epoch 信息。\n来源：通过 RPC get_current_epoch 获取",
+      "type": "stat",
+      "title": "Current Epoch",
+      "description": "当前 Epoch 编号。\n来源：ckb_epoch_number，通过 RPC get_current_epoch 获取",
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 8,
         "x": 0,
         "y": 107
       },
@@ -2205,45 +2205,29 @@
       },
       "targets": [
         {
-          "expr": "ckb_epoch_length{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Epoch Length",
+          "expr": "ckb_epoch_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
           "refId": "A"
-        },
-        {
-          "expr": "ckb_epoch_start_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Epoch Start",
-          "refId": "B"
         }
       ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "none",
           "color": {
             "mode": "palette-classic"
-          },
-          "custom": {
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "line"
-            }
           },
           "thresholds": {
             "mode": "absolute",
@@ -2256,18 +2240,122 @@
           }
         },
         "overrides": []
+      }
+    },
+    {
+      "id": 41,
+      "type": "gauge",
+      "title": "Epoch Progress",
+      "description": "当前 Epoch 完成进度百分比。\n计算：(tip_block - epoch_start_number) / epoch_length * 100",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 107
       },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "targets": [
+        {
+          "expr": "(ckb_tip_block_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"} - ckb_epoch_start_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}) / ckb_epoch_length{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"} * 100",
+          "refId": "A"
         }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 95
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 42,
+      "type": "stat",
+      "title": "Epoch Length",
+      "description": "当前 Epoch 的区块总数。\n来源：ckb_epoch_length，通过 RPC get_current_epoch 获取",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 107
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "targets": [
+        {
+          "expr": "ckb_epoch_length{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
       }
     },
     {

@@ -248,8 +248,9 @@ class RpcGet:
     def get_current_epoch(self) -> dict[str, int]:
         replay = self._call(42, "get_current_epoch", [])
         if not replay:
-            return {"length": -1, "start_number": -1}
+            return {"number": -1, "length": -1, "start_number": -1}
         return {
+            "number": convert_int(str(replay.get("number", "-1"))),
             "length": convert_int(str(replay.get("length", "-1"))),
             "start_number": convert_int(str(replay.get("start_number", "-1"))),
         }
