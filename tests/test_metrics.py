@@ -12,8 +12,8 @@ class FakeRpcGet:
             {"node_status": 1, "node_address": "/ip4/2.2.2.2", "node_id": "node-b", "node_version": "0.202.0"},
         ]
         self._last_blocks = [
-            {"last_blocknumber": 0, "last_block_timestamp": 1000, "last_block_hash": "hash-a"},
-            {"last_blocknumber": 0, "last_block_timestamp": 2000, "last_block_hash": "hash-b"},
+            {"last_blocknumber": 0, "last_block_timestamp": 1000, "last_block_hash": "hash-a", "occupied_capacity": 19800000000.0},
+            {"last_blocknumber": 0, "last_block_timestamp": 2000, "last_block_hash": "hash-b", "occupied_capacity": 19800000000.0},
         ]
         self._block_hashes = [{"blocknumber_hash": "hash-a"}, {"blocknumber_hash": "hash-b"}]
         self._block_details = [
@@ -129,6 +129,7 @@ class MetricsCollectorTest(unittest.TestCase):
 
         label_values = ("mainnet", "test-node", "public", "127.0.0.1", "us-east-1")
         self.assertEqual(collector.current_epoch_number.labels(*label_values)._value.get(), 42.0)
+        self.assertEqual(collector.knowledge_size.labels(*label_values)._value.get(), 19800000000.0)
         self.assertAlmostEqual(collector.dao_deposit.labels(*label_values)._value.get(), 617555.6526176)
         self.assertEqual(collector.dao_depositors_count.labels(*label_values)._value.get(), 3.0)
         self.assertAlmostEqual(collector.network_hashrate.labels(*label_values)._value.get(), 125.0)

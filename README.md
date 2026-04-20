@@ -163,6 +163,7 @@ The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
 | `ckb_tx_pool_max_ancestors_count` | Max pending tx ancestors from `get_raw_tx_pool` |
 | `ckb_fee_rate_mean` | Fee rate mean from `get_fee_rate_statistics` |
 | `ckb_fee_rate_median` | Fee rate median from `get_fee_rate_statistics` |
+| `ckb_knowledge_size_bytes` | On-chain knowledge size in bytes (occupied capacity from tip header dao field, 1 CKB = 1 Byte) |
 | `ckb_block_size_bytes` | Serialized block size |
 | `ckb_estimate_fee_rate` | Estimated fee rate from `estimate_fee_rate` |
 | `ckb_blockchain_difficulty` | Chain difficulty from `get_blockchain_info` |

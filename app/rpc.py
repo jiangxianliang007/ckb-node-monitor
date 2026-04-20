@@ -44,14 +44,24 @@ class RpcGet:
             logger.warning("RPC method %s failed: %s", method, exc)
             return None
 
-    def get_LastBlockInfo(self) -> dict[str, int | str]:
+    def get_LastBlockInfo(self) -> dict[str, int | str | float]:
         replay = self._call(2, "get_tip_header", [])
         if not replay:
-            return {"last_blocknumber": -1, "last_block_hash": "-1", "last_block_timestamp": -1}
+            return {"last_blocknumber": -1, "last_block_hash": "-1", "last_block_timestamp": -1, "occupied_capacity": -1.0}
+
+        dao_hex = str(replay.get("dao", "0x" + "00" * 32))
+        try:
+            dao_bytes = bytes.fromhex(dao_hex[2:])
+            occupied_capacity_shannons = struct.unpack("<Q", dao_bytes[24:32])[0]
+            occupied_capacity_ckb = occupied_capacity_shannons / SHANNONS_PER_CKB
+        except (ValueError, struct.error):
+            occupied_capacity_ckb = -1.0
+
         return {
             "last_blocknumber": convert_int(str(replay.get("number", "-1"))),
             "last_block_hash": str(replay.get("hash", "-1")),
             "last_block_timestamp": convert_int(str(replay.get("timestamp", "-1"))),
+            "occupied_capacity": occupied_capacity_ckb,
         }
 
     def get_dao_statistics(self) -> dict[str, float]:
