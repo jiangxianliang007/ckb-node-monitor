@@ -88,6 +88,12 @@ class MetricsCollector:
         )
         self.Node_fee_rate_mean = Gauge("ckb_fee_rate_mean", "Fee rate mean (get_fee_rate_statistics)", BASE_LABELS, registry=self.registry)
         self.Node_fee_rate_median = Gauge("ckb_fee_rate_median", "Fee rate median (get_fee_rate_statistics)", BASE_LABELS, registry=self.registry)
+        self.knowledge_size = Gauge(
+            "ckb_knowledge_size_bytes",
+            "On-chain knowledge size (occupied capacity of all live cells)",
+            BASE_LABELS,
+            registry=self.registry,
+        )
         self.Block_Size = Gauge("ckb_block_size_bytes", "Block serialized size in bytes", BASE_LABELS, registry=self.registry)
         self.Estimate_fee_rate = Gauge("ckb_estimate_fee_rate", "Estimated fee rate (estimate_fee_rate)", BASE_LABELS, registry=self.registry)
         self.difficulty = Gauge("ckb_blockchain_difficulty", "Blockchain difficulty (get_blockchain_info)", BASE_LABELS, registry=self.registry)
@@ -132,6 +138,7 @@ class MetricsCollector:
         block_number = int(last_block["last_blocknumber"])
         block_timestamp = int(last_block["last_block_timestamp"])
         self.Node_Get_LastBlocknumber.labels(*label_values).set(float(block_number))
+        self.knowledge_size.labels(*label_values).set(float(last_block["occupied_capacity"]))
 
         if block_number >= 0:
             block_hash = self.rpc_client.get_block_hash(block_number)["blocknumber_hash"]

@@ -330,8 +330,8 @@
     {
       "id": 7,
       "type": "stat",
-      "title": "Avg Fee Rate",
-      "description": "预估手续费率的平均值（shannons/KB）。\n来源：ckb_estimate_fee_rate，通过 RPC estimate_fee_rate 获取",
+      "title": "Knowledge Size",
+      "description": "链上 Knowledge Size（所有 Live Cells 占用的总容量）。\n来源：get_tip_header 返回的 dao 字段中的 Occupied Capacity。\n在 CKB 中 1 CKB = 1 Byte 链上存储空间",
       "gridPos": {
         "h": 5,
         "w": 4,
@@ -344,7 +344,7 @@
       },
       "targets": [
         {
-          "expr": "avg(ckb_estimate_fee_rate{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
+          "expr": "ckb_knowledge_size_bytes{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
           "refId": "A"
         }
       ],
@@ -364,7 +364,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix:shannons/KB",
+          "unit": "decbytes",
           "color": {
             "mode": "palette-classic"
           },
