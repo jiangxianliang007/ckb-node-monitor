@@ -91,6 +91,9 @@ docker compose up -d --build
 Use `prometheus/prometheus.yml`:
 
 ```yaml
+rule_files:
+  - /etc/prometheus/alerts/ckb-node-monitor-rules.yml
+
 scrape_configs:
   - job_name: 'ckb-mainnet'
     static_configs:
@@ -99,6 +102,32 @@ scrape_configs:
     static_configs:
       - targets: ['testnet-node-1:8090']
 ```
+
+`alerts/ckb-node-monitor-rules.yml` provides a unified alert set for `mainnet`, `testnet`, and `preview`.
+
+## Alert Rules (Prometheus)
+
+The repository includes `alerts/ckb-node-monitor-rules.yml` with these alerts:
+
+- No new blocks for 5 minutes (`warning`)
+- No new blocks for 10 minutes (`critical`)
+- Outbound peer count too low
+- Transaction pool size too high
+- Oldest pending tx time > 600 seconds
+- Banned addresses count > 4
+- Banned bootnodes count > 1
+
+Multi-chain strategy:
+
+- One unified rules file for `mainnet`, `testnet`, and `preview`
+- Chain-specific thresholds are used where network characteristics differ:
+  - `CKBOutboundPeersTooLow`: mainnet `< 5`, testnet `< 3`, preview `< 2`
+  - `CKBTxPoolSizeTooHigh`: mainnet `> 20000000`, testnet `> 10000000`, preview `> 5000000`
+- Rules are matched by the metric `chain` label, so running only `mainnet` works out of the box (missing chains do not trigger alerts).
+
+All alert annotations include `chain` and `node_name` for community-friendly routing and triage.
+
+To adjust thresholds, edit `alerts/ckb-node-monitor-rules.yml` expressions directly.
 
 ## Grafana Tips
 

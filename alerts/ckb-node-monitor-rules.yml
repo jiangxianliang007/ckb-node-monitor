@@ -1,0 +1,75 @@
+groups:
+  - name: ckb-node-monitor-alerts
+    rules:
+      - alert: CKBNoNewBlocks5Minutes
+        expr: increase(ckb_tip_block_number[5m]) == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No new CKB blocks for 5 minutes"
+          description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} has no new blocks in the last 5 minutes."
+
+      - alert: CKBNoNewBlocks10Minutes
+        expr: increase(ckb_tip_block_number[10m]) == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No new CKB blocks for 10 minutes"
+          description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} has no new blocks in the last 10 minutes."
+
+      - alert: CKBOutboundPeersTooLow
+        expr: |
+          (ckb_peers_outbound_count{chain="mainnet"} < 5)
+          or
+          (ckb_peers_outbound_count{chain="testnet"} < 3)
+          or
+          (ckb_peers_outbound_count{chain="preview"} < 2)
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbound peer count is too low"
+          description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} outbound_peers={{ $value }} is below the chain threshold."
+
+      - alert: CKBTxPoolSizeTooHigh
+        expr: |
+          (ckb_tx_pool_total_tx_size{chain="mainnet"} > 20000000)
+          or
+          (ckb_tx_pool_total_tx_size{chain="testnet"} > 10000000)
+          or
+          (ckb_tx_pool_total_tx_size{chain="preview"} > 5000000)
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Transaction pool size is too high"
+          description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} tx_pool_total_tx_size={{ $value }} is above the chain threshold."
+
+      - alert: CKBTxPendingTimeTooHigh
+        expr: ckb_tx_pool_oldest_pending_seconds > 600
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Oldest pending transaction is over 600 seconds"
+          description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} oldest_pending_seconds={{ $value }}."
+
+      - alert: CKBBanAllNodesCountTooHigh
+        expr: ckb_banned_addresses_total > 4
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Banned addresses count is too high"
+          description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} banned_addresses_total={{ $value }} is above 4."
+
+      - alert: CKBBannedBootnodesCountTooHigh
+        expr: ckb_banned_bootnodes_count > 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Banned bootnodes count is too high"
+          description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} banned_bootnodes_count={{ $value }} is above 1."
