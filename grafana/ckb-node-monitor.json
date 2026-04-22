@@ -1374,12 +1374,12 @@
       "targets": [
         {
           "expr": "ckb_banned_addresses_total{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Total Banned",
+          "legendFormat": "{{node_name}} - Total Banned",
           "refId": "A"
         },
         {
           "expr": "ckb_banned_bootnodes_count{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Banned Bootnodes",
+          "legendFormat": "{{node_name}} - Banned Bootnodes",
           "refId": "B"
         }
       ],
@@ -2037,17 +2037,17 @@
       "targets": [
         {
           "expr": "ckb_fee_rate_mean{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Mean",
+          "legendFormat": "{{node_name}} - Mean",
           "refId": "A"
         },
         {
           "expr": "ckb_fee_rate_median{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Median",
+          "legendFormat": "{{node_name}} - Median",
           "refId": "B"
         },
         {
           "expr": "ckb_estimate_fee_rate{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Estimated",
+          "legendFormat": "{{node_name}} - Estimated",
           "refId": "C"
         }
       ],
@@ -2124,12 +2124,12 @@
       "targets": [
         {
           "expr": "ckb_block_commit_transactions{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Committed",
+          "legendFormat": "{{node_name}} - Committed",
           "refId": "A"
         },
         {
           "expr": "ckb_block_proposal_transactions{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
-          "legendFormat": "Proposal",
+          "legendFormat": "{{node_name}} - Proposal",
           "refId": "B"
         }
       ],
@@ -2205,7 +2205,8 @@
       },
       "targets": [
         {
-          "expr": "ckb_epoch_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "expr": "max by(chain) (ckb_epoch_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
+          "legendFormat": "Epoch",
           "refId": "A"
         }
       ],
@@ -2259,7 +2260,7 @@
       },
       "targets": [
         {
-          "expr": "(ckb_tip_block_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"} - ckb_epoch_start_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}) / ckb_epoch_length{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"} * 100",
+          "expr": "(max by(chain) (ckb_tip_block_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}) - max by(chain) (ckb_epoch_start_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})) / max by(chain) (ckb_epoch_length{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}) * 100",
           "refId": "A"
         }
       ],
@@ -2321,7 +2322,8 @@
       },
       "targets": [
         {
-          "expr": "ckb_epoch_length{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "expr": "max by(chain) (ckb_epoch_length{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
+          "legendFormat": "Epoch Length",
           "refId": "A"
         }
       ],
