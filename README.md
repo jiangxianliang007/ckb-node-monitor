@@ -91,6 +91,9 @@ docker compose up -d --build
 Use `prometheus/prometheus.yml`:
 
 ```yaml
+rule_files:
+  - ckb_alert_rules.yml
+
 scrape_configs:
   - job_name: 'ckb-mainnet'
     static_configs:
@@ -99,6 +102,43 @@ scrape_configs:
     static_configs:
       - targets: ['testnet-node-1:8090']
 ```
+
+## Prometheus Alert Rules
+
+- Alert rules file path: `prometheus/ckb_alert_rules.yml`
+- Included default rules:
+  - `HighMemoryUsage`: host memory usage > 90% for 5 minutes
+  - `HighCpuLoad`: host CPU usage > 80% for 5 minutes
+  - `CKBBlockSyncDelay`: `ckb_block_time_since_last_seconds` > 10 for 2 minutes
+
+> `HighMemoryUsage` and `HighCpuLoad` use standard node-exporter metrics (`node_memory_*`, `node_cpu_seconds_total`). Ensure node-exporter is scraped by Prometheus for CKB hosts.
+
+Example reference in Prometheus config:
+
+```yaml
+rule_files:
+  - /etc/prometheus/ckb_alert_rules.yml
+```
+
+If you run Prometheus via Docker/Compose, mount both files:
+- `./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro`
+- `./prometheus/ckb_alert_rules.yml:/etc/prometheus/ckb_alert_rules.yml:ro`
+
+Validation commands:
+
+```bash
+promtool check rules prometheus/ckb_alert_rules.yml
+promtool check config prometheus/prometheus.yml
+```
+
+Verification steps:
+
+1. Open Prometheus Web UI: `http://<prometheus-host>:9090/rules` and confirm the three alert rules are loaded.
+2. Open `http://<prometheus-host>:9090/alerts` to observe alert states.
+3. Use the query page to verify thresholds:
+   - `(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100`
+   - `(1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100`
+   - `ckb_block_time_since_last_seconds`
 
 ## Grafana Tips
 

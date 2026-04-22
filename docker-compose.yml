@@ -14,5 +14,6 @@ services:
   #   image: prom/prometheus:latest
   #   volumes:
   #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #     - ./prometheus/ckb_alert_rules.yml:/etc/prometheus/ckb_alert_rules.yml:ro
   #   ports:
   #     - "9090:9090"

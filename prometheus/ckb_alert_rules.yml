@@ -1,0 +1,29 @@
+groups:
+  - name: ckb-node-alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CKB node host memory usage is high"
+          description: "Host memory usage has been above 90% for more than 5 minutes (instance: {{ $labels.instance }})."
+
+      - alert: HighCpuLoad
+        expr: (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CKB node host CPU load is high"
+          description: "Host CPU usage has been above 80% for more than 5 minutes (instance: {{ $labels.instance }})."
+
+      - alert: CKBBlockSyncDelay
+        expr: ckb_block_time_since_last_seconds > 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CKB block synchronization delay is high"
+          description: "Latest block delay is above 10 seconds for more than 2 minutes (node: {{ $labels.node_name }}, chain: {{ $labels.chain }})."

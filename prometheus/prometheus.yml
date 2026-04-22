@@ -1,6 +1,9 @@
 global:
   scrape_interval: 15s
 
+rule_files:
+  - ckb_alert_rules.yml
+
 scrape_configs:
   - job_name: 'ckb-mainnet'
     static_configs:
