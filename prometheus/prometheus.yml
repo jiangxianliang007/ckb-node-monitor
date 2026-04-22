@@ -9,16 +9,16 @@ scrape_configs:
     static_configs:
       - targets: ['mainnet-node-1:8090', 'mainnet-node-2:8090']
         labels:
-          network: mainnet
+          chain: mainnet
 
   - job_name: 'ckb-testnet'
     static_configs:
       - targets: ['testnet-node-1:8090']
         labels:
-          network: testnet
+          chain: testnet
 
   - job_name: 'ckb-preview'
     static_configs:
       - targets: ['preview-node-1:8090']
         labels:
-          network: preview
+          chain: preview

@@ -10,7 +10,7 @@ groups:
           summary: "CKB node block production delayed (5m)"
           description: "Node {{ $labels.node_name }} on {{ $labels.chain }} has not produced/seen a new block for more than 5 minutes (current={{ $value }}s)."
 
-      - alert: NodeOutOfBlock
+      - alert: NodeOutOfBlockCritical
         expr: ckb_block_time_since_last_seconds{chain=~"mainnet|testnet|preview"} > 600
         for: 2m
         labels:
@@ -35,10 +35,10 @@ groups:
           severity: warning
         annotations:
           summary: "CKB transaction pool size is high"
-          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} tx-pool-size exceeded threshold (current={{ $value }})."
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} tx-pool-size exceeded threshold (current={{ $value }} bytes)."
 
       - alert: PendingTxTimeAbnormal
-        expr: ckb_tx_pool_oldest_pending_seconds{chain=~"mainnet|testnet|preview"} > 600 and ckb_tx_pool_pending_count{chain=~"mainnet|testnet|preview"} > 0
+        expr: ckb_tx_pool_oldest_pending_seconds{chain=~"mainnet|testnet|preview"} > 600 and on(chain, node_name) ckb_tx_pool_pending_count > 0
         for: 5m
         labels:
           severity: warning

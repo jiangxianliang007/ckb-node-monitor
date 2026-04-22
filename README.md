@@ -99,17 +99,17 @@ scrape_configs:
     static_configs:
       - targets: ['mainnet-node-1:8090', 'mainnet-node-2:8090']
         labels:
-          network: mainnet
+          chain: mainnet
   - job_name: 'ckb-testnet'
     static_configs:
       - targets: ['testnet-node-1:8090']
         labels:
-          network: testnet
+          chain: testnet
   - job_name: 'ckb-preview'
     static_configs:
       - targets: ['preview-node-1:8090']
         labels:
-          network: preview
+          chain: preview
 ```
 
 > Keep exporter labels `CHAIN` and `NODE_NAME` configured per node instance. Alert rules use metric labels (`chain`, `node_name`) to identify exact node source.
@@ -121,7 +121,8 @@ scrape_configs:
 3. Reload Prometheus (`/-/reload`) or restart service.
 
 Included alerts:
-- `NodeOutOfBlock` (5m warning / 10m critical)
+- `NodeOutOfBlock` (5m warning)
+- `NodeOutOfBlockCritical` (10m critical)
 - `AbnormalOutboundConnection`
 - `TransactionPoolSizeWarning`
 - `PendingTxTimeAbnormal`
@@ -141,7 +142,11 @@ You can adjust thresholds directly in `prometheus/ckb_alert_rules.yml` based on 
 Recommended quick check:
 
 ```bash
+# in this repository
 promtool check rules prometheus/ckb_alert_rules.yml
+
+# or in your Prometheus runtime config directory
+promtool check rules /etc/prometheus/ckb_alert_rules.yml
 ```
 
 ## Grafana Tips
