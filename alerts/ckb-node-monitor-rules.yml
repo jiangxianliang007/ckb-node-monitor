@@ -56,7 +56,7 @@ groups:
           summary: "Oldest pending transaction is over 600 seconds"
           description: "chain={{ $labels.chain }} node_name={{ $labels.node_name }} oldest_pending_seconds={{ $value }}."
 
-      - alert: CKBBanAllNodesCountTooHigh
+      - alert: CKBBannedAddressesCountTooHigh
         expr: ckb_banned_addresses_total > 4
         for: 1m
         labels:
