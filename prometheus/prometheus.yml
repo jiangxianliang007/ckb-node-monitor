@@ -1,6 +1,11 @@
 global:
   scrape_interval: 15s
 
+rule_files:
+  - "alerts/ckb_alerts_mainnet.yml"
+  - "alerts/ckb_alerts_testnet.yml"
+  - "alerts/ckb_alerts_preview.yml"
+
 scrape_configs:
   - job_name: 'ckb-mainnet'
     static_configs:
@@ -9,3 +14,7 @@ scrape_configs:
   - job_name: 'ckb-testnet'
     static_configs:
       - targets: ['testnet-node-1:8090']
+
+  - job_name: 'ckb-preview'
+    static_configs:
+      - targets: ['preview-node-1:8090']
