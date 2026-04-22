@@ -135,10 +135,10 @@ Verification steps:
 
 1. Open Prometheus Web UI: `http://<prometheus-host>:9090/rules` and confirm the three alert rules are loaded.
 2. Open `http://<prometheus-host>:9090/alerts` to observe alert states.
-3. Use the query page to verify thresholds:
-   - `(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100`
-   - `(1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100`
-   - `ckb_block_time_since_last_seconds`
+3. Use the query page (`/graph`) to verify alert series:
+   - `ALERTS{alertname="HighMemoryUsage"}`
+   - `ALERTS{alertname="HighCpuLoad"}`
+   - `ALERTS{alertname="CKBBlockSyncDelay"}`
 
 ## Grafana Tips
 

@@ -8,7 +8,7 @@ groups:
           severity: warning
         annotations:
           summary: "CKB node host memory usage is high"
-          description: "Host memory usage has been above 90% for more than 5 minutes (instance: {{ $labels.instance }})."
+          description: "Host memory usage has been above 90% for more than 5 minutes (instance: {{ $labels.instance }}). 90% keeps a small safety margin before OOM risk."
 
       - alert: HighCpuLoad
         expr: (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 80
@@ -17,7 +17,7 @@ groups:
           severity: warning
         annotations:
           summary: "CKB node host CPU load is high"
-          description: "Host CPU usage has been above 80% for more than 5 minutes (instance: {{ $labels.instance }})."
+          description: "Host CPU usage has been above 80% for more than 5 minutes (instance: {{ $labels.instance }}). 80% highlights sustained pressure before node responsiveness degrades."
 
       - alert: CKBBlockSyncDelay
         expr: ckb_block_time_since_last_seconds > 10
@@ -26,4 +26,4 @@ groups:
           severity: critical
         annotations:
           summary: "CKB block synchronization delay is high"
-          description: "Latest block delay is above 10 seconds for more than 2 minutes (node: {{ $labels.node_name }}, chain: {{ $labels.chain }})."
+          description: "Latest block delay is above 10 seconds for more than 2 minutes (node: {{ $labels.node_name }}, chain: {{ $labels.chain }}). 10 seconds is a practical threshold for detecting sync lag quickly."
