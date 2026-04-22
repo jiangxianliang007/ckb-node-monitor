@@ -91,13 +91,57 @@ docker compose up -d --build
 Use `prometheus/prometheus.yml`:
 
 ```yaml
+rule_files:
+  - ckb_alert_rules.yml
+
 scrape_configs:
   - job_name: 'ckb-mainnet'
     static_configs:
       - targets: ['mainnet-node-1:8090', 'mainnet-node-2:8090']
+        labels:
+          network: mainnet
   - job_name: 'ckb-testnet'
     static_configs:
       - targets: ['testnet-node-1:8090']
+        labels:
+          network: testnet
+  - job_name: 'ckb-preview'
+    static_configs:
+      - targets: ['preview-node-1:8090']
+        labels:
+          network: preview
+```
+
+> Keep exporter labels `CHAIN` and `NODE_NAME` configured per node instance. Alert rules use metric labels (`chain`, `node_name`) to identify exact node source.
+
+## Prometheus Alert Rules
+
+1. Copy `prometheus/ckb_alert_rules.yml` to your Prometheus config directory (or mount this file directly).
+2. Ensure `rule_files` includes `ckb_alert_rules.yml`.
+3. Reload Prometheus (`/-/reload`) or restart service.
+
+Included alerts:
+- `NodeOutOfBlock` (5m warning / 10m critical)
+- `AbnormalOutboundConnection`
+- `TransactionPoolSizeWarning`
+- `PendingTxTimeAbnormal`
+- `NodeBanBootnode`
+- `NodeBanAll`
+
+You can adjust thresholds directly in `prometheus/ckb_alert_rules.yml` based on your environment.
+
+## Alert Rule Validation (Manual Simulation)
+
+- **No block for 5m/10m**: temporarily stop the CKB node or disconnect consensus sync; verify `ckb_block_time_since_last_seconds` grows beyond 300/600.
+- **Outbound abnormal**: isolate network egress for the node and verify `ckb_peers_outbound_count < 1`.
+- **Tx pool size warning**: submit many transactions (or reduce threshold temporarily) until `ckb_tx_pool_total_tx_size` exceeds threshold.
+- **Pending tx time abnormal**: keep pending transactions unconfirmed and verify `ckb_tx_pool_oldest_pending_seconds > 600` with `ckb_tx_pool_pending_count > 0`.
+- **Node ban alerts**: add banned peers/bootnodes in node config or via RPC, then confirm `ckb_banned_addresses_total` / `ckb_banned_bootnodes_count` become non-zero.
+
+Recommended quick check:
+
+```bash
+promtool check rules prometheus/ckb_alert_rules.yml
 ```
 
 ## Grafana Tips

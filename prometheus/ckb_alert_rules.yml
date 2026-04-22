@@ -1,0 +1,65 @@
+groups:
+  - name: ckb-node-state-alerts
+    rules:
+      - alert: NodeOutOfBlock
+        expr: ckb_block_time_since_last_seconds{chain=~"mainnet|testnet|preview"} > 300
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CKB node block production delayed (5m)"
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} has not produced/seen a new block for more than 5 minutes (current={{ $value }}s)."
+
+      - alert: NodeOutOfBlock
+        expr: ckb_block_time_since_last_seconds{chain=~"mainnet|testnet|preview"} > 600
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CKB node block production stalled (10m)"
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} has not produced/seen a new block for more than 10 minutes (current={{ $value }}s)."
+
+      - alert: AbnormalOutboundConnection
+        expr: ckb_peers_outbound_count{chain=~"mainnet|testnet|preview"} < 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CKB node outbound connection abnormal"
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} has outbound peers < 1 for 5 minutes (current={{ $value }})."
+
+      - alert: TransactionPoolSizeWarning
+        expr: ckb_tx_pool_total_tx_size{chain=~"mainnet|testnet|preview"} > 1000000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CKB transaction pool size is high"
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} tx-pool-size exceeded threshold (current={{ $value }})."
+
+      - alert: PendingTxTimeAbnormal
+        expr: ckb_tx_pool_oldest_pending_seconds{chain=~"mainnet|testnet|preview"} > 600 and ckb_tx_pool_pending_count{chain=~"mainnet|testnet|preview"} > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CKB pending transaction age abnormal"
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} has oldest pending tx age > 10 minutes (current={{ $value }}s)."
+
+      - alert: NodeBanBootnode
+        expr: ckb_banned_bootnodes_count{chain=~"mainnet|testnet|preview"} > 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CKB node banned bootnode(s)"
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} reports banned bootnodes count={{ $value }}."
+
+      - alert: NodeBanAll
+        expr: ckb_banned_addresses_total{chain=~"mainnet|testnet|preview"} > 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CKB node banned peers detected"
+          description: "Node {{ $labels.node_name }} on {{ $labels.chain }} reports banned addresses total={{ $value }}."
