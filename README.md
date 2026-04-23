@@ -5,15 +5,18 @@ Per-node CKB Prometheus exporter. Deploy one exporter per CKB node, then scrape 
 ```
 CKB Node (local RPC) -> CKB Exporter (/metrics) -> Prometheus -> Grafana
 ```
+## Dashboard preview
+
+![Grafana Dashboard](images/ckb-monitor-dashboard-2026-04-23.png)
 
 ## Architecture
 
 - This project is a **per-node exporter**, not a centralized monitor.
 - Each instance runs alongside one CKB node and scrapes that local node (default `http://127.0.0.1:8114`).
-- Grafana chain/node selection is done via metric labels (`chain`, `node_type`, `node_name`, `node_location`, `node_ip`).
+- Grafana chain/node selection is done via metric labels (`chain`, `node_type`, `node_name`).
 - Exporter endpoints:
   - `GET /metrics`
-  - `GET /health`
+
 
 ## Quick Start
 
@@ -106,7 +109,6 @@ scrape_configs:
   - `chain`: `label_values(ckb_node_status, chain)`
   - `node_type`: `label_values(ckb_node_status{chain="$chain"}, node_type)`
   - `node_name`: `label_values(ckb_node_status{chain="$chain", node_type="$node_type"}, node_name)`
-  - `node_location`: `label_values(ckb_node_status{chain="$chain"}, node_location)`
 - Filter dashboards by label selectors instead of exporter query parameters.
 
 ## Grafana Dashboard
@@ -171,4 +173,4 @@ The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
 | `ckb_dao_depositors_count` | Nervos DAO unique depositor addresses count from rich-indexer RPC `get_cells` (unique lock scripts) |
 | `ckb_network_hashrate` | Estimated network hashrate in H/s from difficulty and epoch average block time |
 
-> DAO metrics (`ckb_dao_deposit`, `ckb_dao_depositors_count`) require rich-indexer RPC support on the node. If unavailable, exporter reports `-1` and continues running.
+> DAO metrics (`ckb_dao_deposit`, `ckb_dao_depositors_count`) require indexer RPC support on the node. If unavailable, exporter reports `-1` and continues running.
