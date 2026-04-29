@@ -659,7 +659,7 @@
       },
       "targets": [
         {
-          "expr": "ckb_tip_block_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"}",
+          "expr": "ckb_tip_block_number{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"} > 0",
           "legendFormat": "{{node_name}}",
           "refId": "A"
         }
