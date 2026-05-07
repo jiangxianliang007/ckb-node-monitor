@@ -8,6 +8,7 @@ groups:
           severity: warning
         annotations:
           summary: No new blocks for 5 minutes on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: No new block for {{ $value }}s on {{ $labels.chain }} node {{ $labels.node_name }}.
 
       - alert: CKBNoNewBlocks10Minutes
         expr: ckb_block_time_since_last_seconds{chain="preview"} > 600
@@ -16,14 +17,7 @@ groups:
           severity: warning
         annotations:
           summary: No new blocks for 10 minutes on {{ $labels.chain }} node {{ $labels.node_name }}
-
-      - alert: CKBOutboundPeersTooLow
-        expr: ckb_peers_outbound_count{chain="preview"} < 4
-        for: 10m
-        labels:
-          severity: warning
-        annotations:
-          summary: Outbound peers too low on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: No new block for {{ $value }}s on {{ $labels.chain }} node {{ $labels.node_name }}.
 
       - alert: CKBTxPoolSizeTooHigh
         expr: ckb_tx_pool_total_tx_size{chain="preview"} > 300000000
@@ -32,6 +26,7 @@ groups:
           severity: warning
         annotations:
           summary: Tx pool size too high on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: Tx pool size is {{ $value }} bytes on {{ $labels.chain }} node {{ $labels.node_name }}.
 
       - alert: CKBTxPendingTimeTooHigh
         expr: ckb_tx_pool_oldest_pending_seconds{chain="preview"} > 600
@@ -40,6 +35,7 @@ groups:
           severity: warning
         annotations:
           summary: Oldest pending tx time too high on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: Oldest pending tx has been waiting {{ $value }}s on {{ $labels.chain }} node {{ $labels.node_name }}.
 
       - alert: CKBBannedAddressesCountTooHigh
         expr: ckb_banned_addresses_total{chain="preview"} > 2
@@ -48,6 +44,7 @@ groups:
           severity: warning
         annotations:
           summary: Banned addresses count too high on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: Banned addresses count is {{ $value }} on {{ $labels.chain }} node {{ $labels.node_name }}.
 
       - alert: CKBBannedBootnodesCountTooHigh
         expr: ckb_banned_bootnodes_count{chain="preview"} > 1
@@ -56,3 +53,4 @@ groups:
           severity: warning
         annotations:
           summary: Banned bootnodes count too high on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: Banned bootnodes count is {{ $value }} on {{ $labels.chain }} node {{ $labels.node_name }}.
