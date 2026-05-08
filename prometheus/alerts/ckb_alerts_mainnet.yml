@@ -1,6 +1,15 @@
 groups:
   - name: ckb-mainnet-alerts
     rules:
+      - alert: CKBNodeDown
+        expr: ckb_node_status{chain="mainnet"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: CKB node is down on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: CKB RPC is unavailable and ckb_node_status is {{ printf "%.0f" $value }} on {{ $labels.chain }} node {{ $labels.node_name }}.
+
       - alert: CKBNoNewBlocks5Minutes
         expr: ckb_block_time_since_last_seconds{chain="mainnet"} > 300
         for: 5m
