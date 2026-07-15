@@ -1380,9 +1380,9 @@
     },
     {
       "id": 23,
-      "type": "bargauge",
+      "type": "timeseries",
       "title": "Banned Addresses",
-      "description": "被封禁的地址总数。\n来源：ckb_banned_addresses_total，通过 RPC get_banned_addresses 获取",
+      "description": "被封禁的地址总数随时间变化趋势。\n来源：ckb_banned_addresses_total，通过 RPC get_banned_addresses 获取",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1397,21 +1397,42 @@
         {
           "expr": "sort_desc(ckb_banned_addresses_total{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
           "legendFormat": "{{node_name}} - Total Banned",
-          "refId": "A",
-          "instant": true
+          "refId": "A"
         },
         {
           "expr": "sort_desc(ckb_banned_bootnodes_count{chain=~\"$chain\", node_type=~\"$node_type\", node_name=~\"$node_name\"})",
           "legendFormat": "{{node_name}} - Banned Bootnodes",
-          "refId": "B",
-          "instant": true
+          "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "none",
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
           },
           "thresholds": {
             "mode": "absolute",
@@ -1419,36 +1440,29 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 10
               }
             ]
           },
+          "unit": "none",
           "min": 0
         },
         "overrides": []
       },
       "options": {
-        "orientation": "horizontal",
-        "reduceOptions": {
+        "legend": {
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
-          "values": false
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "lastNotNull",
+          "sortDesc": true
         },
-        "displayMode": "gradient",
-        "showUnfilled": true,
-        "minVizWidth": 0,
-        "minVizHeight": 10,
-        "valueMode": "color",
-        "text": {}
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       }
     },
     {
