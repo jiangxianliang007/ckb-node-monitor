@@ -21,6 +21,7 @@ class RpcGet:
         self.session = requests.Session()
         self._dao_cache: dict[str, float] = {"dao_deposit_ckb": -1.0, "dao_depositors_count": -1.0}
         self._dao_cache_time: float = 0.0
+        self._tx_first_seen: dict[str, float] = {}
 
     def _call(self, rpc_id: int, method: str, params: list[object]) -> Mapping[str, object] | None:
         payload = {"id": rpc_id, "jsonrpc": "2.0", "method": method, "params": params}
@@ -292,40 +293,45 @@ class RpcGet:
     def get_pending_tx(self) -> dict[str, int | str | float]:
         replay = self._call(42, "get_raw_tx_pool", [True])
         if not replay:
-            return {
-                "pending_tx_count": -1,
-                "first_pending_tx_hash": "-1",
-                "first_pending_tx_time": -1,
-                "max_ancestors_count": -1,
-            }
+            return {"pending_tx_count": -1, "first_pending_tx_hash": "-1",
+                    "first_pending_tx_time": -1, "max_ancestors_count": -1}
 
-        pending = replay.get("pending", {})
-        if not isinstance(pending, dict):
-            return {
-                "pending_tx_count": -1,
-                "first_pending_tx_hash": "-1",
-                "first_pending_tx_time": -1,
-                "max_ancestors_count": -1,
-            }
+        pending = replay.get("pending", {}) or {}
+        proposed = replay.get("proposed", {}) or {}
+        if not isinstance(pending, dict) or not isinstance(proposed, dict):
+            return {"pending_tx_count": -1, "first_pending_tx_hash": "-1",
+                    "first_pending_tx_time": -1, "max_ancestors_count": -1}
+
+        now = time.time()
+        # Merge pending + proposed so state transitions don't reset first_seen
+        in_pool = {**proposed, **pending}
+
+        for tx_hash, entry in in_pool.items():
+            if tx_hash in self._tx_first_seen:
+                continue
+            first_seen = now
+            try:
+                node_ts = int(str(entry["timestamp"]), 16) / 1000
+                if 0 < node_ts <= now:
+                    first_seen = node_ts
+            except (KeyError, ValueError, TypeError):
+                pass
+            self._tx_first_seen[tx_hash] = first_seen
+
+        for tx_hash in list(self._tx_first_seen):
+            if tx_hash not in in_pool:
+                del self._tx_first_seen[tx_hash]
 
         tx_count = len(pending)
-        if tx_count == 0:
-            return {
-                "pending_tx_count": 0,
-                "first_pending_tx_hash": "-1",
-                "first_pending_tx_time": 0,
-                "max_ancestors_count": 0,
-            }
+        if not pending:
+            return {"pending_tx_count": 0, "first_pending_tx_hash": "-1",
+                    "first_pending_tx_time": 0, "max_ancestors_count": 0}
 
-        nowtime = int(round(time.time() * 1000))
         try:
-            min_key, min_timestamp = min(
-                ((key, int(str(entry["timestamp"]), 16)) for key, entry in pending.items() if "timestamp" in entry),
-                key=lambda item: item[1],
-            )
-            pending_tx_seconds = (nowtime - min_timestamp) / 1000
+            min_key = min(pending, key=lambda h: self._tx_first_seen.get(h, float("inf")))
+            pending_tx_seconds = max(0.0, now - self._tx_first_seen.get(min_key, now))
             max_ancestors_count = max(
-                int(str(transaction.get("ancestors_count", "0x0")), 16) for transaction in pending.values()
+                int(str(tx.get("ancestors_count", "0x0")), 16) for tx in pending.values()
             )
             return {
                 "pending_tx_count": tx_count,
@@ -335,12 +341,8 @@ class RpcGet:
             }
         except (ValueError, TypeError) as exc:
             logger.warning("Failed parsing pending tx stats: %s", exc)
-            return {
-                "pending_tx_count": tx_count,
-                "first_pending_tx_hash": "-1",
-                "first_pending_tx_time": -1,
-                "max_ancestors_count": -1,
-            }
+            return {"pending_tx_count": tx_count, "first_pending_tx_hash": "-1",
+                    "first_pending_tx_time": -1, "max_ancestors_count": -1}
 
     def get_fee_rate_statistics(self) -> dict[str, int]:
         replay = self._call(42, "get_fee_rate_statistics", [])

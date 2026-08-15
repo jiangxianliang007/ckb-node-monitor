@@ -1,5 +1,6 @@
 import unittest
 import struct
+import time
 
 from app.rpc import RpcGet
 
@@ -72,6 +73,86 @@ class RpcGetTest(unittest.TestCase):
         statistics = rpc.get_dao_statistics()
         self.assertEqual(statistics["dao_deposit_ckb"], -1.0)
         self.assertEqual(statistics["dao_depositors_count"], -1.0)
+
+
+class PendingTxCacheTest(unittest.TestCase):
+    def _make_tx_entry(self, ts_ms: int) -> dict:
+        return {"timestamp": hex(ts_ms), "ancestors_count": "0x0"}
+
+    def test_age_monotonically_increases_across_scrapes(self):
+        """Same tx scraped twice: age must increase, not be reset by node timestamp."""
+        now_ms = int(time.time() * 1000)
+        tx_hash = "0xabc"
+        entry = self._make_tx_entry(now_ms - 60_000)  # node says 60 s ago
+
+        rpc = RpcGetStub({})
+        rpc.responses["get_raw_tx_pool"] = [
+            {"pending": {tx_hash: entry}, "proposed": {}},
+            {"pending": {tx_hash: entry}, "proposed": {}},
+        ]
+
+        result1 = rpc.get_pending_tx()
+        time.sleep(0.05)
+        result2 = rpc.get_pending_tx()
+
+        self.assertGreater(result2["first_pending_tx_time"], result1["first_pending_tx_time"])
+
+    def test_first_seen_not_reset_when_tx_moves_to_proposed(self):
+        """Tx moves pending → proposed → pending: first_seen must stay the same."""
+        now_ms = int(time.time() * 1000)
+        tx_hash = "0xdef"
+        entry = self._make_tx_entry(now_ms - 120_000)  # node says 120 s ago
+
+        rpc = RpcGetStub({})
+        rpc.responses["get_raw_tx_pool"] = [
+            {"pending": {tx_hash: entry}, "proposed": {}},
+            {"pending": {}, "proposed": {tx_hash: entry}},  # moved to proposed
+            {"pending": {tx_hash: entry}, "proposed": {}},  # back to pending
+        ]
+
+        result1 = rpc.get_pending_tx()
+        first_seen_initial = rpc._tx_first_seen[tx_hash]
+
+        rpc.get_pending_tx()  # tx in proposed, not in pending result
+        self.assertIn(tx_hash, rpc._tx_first_seen, "cache entry must survive when tx is in proposed")
+        self.assertEqual(rpc._tx_first_seen[tx_hash], first_seen_initial, "first_seen must not change")
+
+        result3 = rpc.get_pending_tx()
+        self.assertEqual(rpc._tx_first_seen[tx_hash], first_seen_initial, "first_seen must not change after return to pending")
+        self.assertGreaterEqual(result3["first_pending_tx_time"], result1["first_pending_tx_time"])
+
+    def test_cache_entry_cleaned_when_tx_leaves_pool(self):
+        """Tx confirmed/dropped: cache entry must be removed."""
+        now_ms = int(time.time() * 1000)
+        tx_hash = "0xfed"
+        entry = self._make_tx_entry(now_ms - 10_000)
+
+        rpc = RpcGetStub({})
+        rpc.responses["get_raw_tx_pool"] = [
+            {"pending": {tx_hash: entry}, "proposed": {}},
+            {"pending": {}, "proposed": {}},  # tx gone
+        ]
+
+        rpc.get_pending_tx()
+        self.assertIn(tx_hash, rpc._tx_first_seen)
+
+        rpc.get_pending_tx()
+        self.assertNotIn(tx_hash, rpc._tx_first_seen)
+
+    def test_empty_pending_returns_zero_counts(self):
+        rpc = RpcGetStub({"get_raw_tx_pool": {"pending": {}, "proposed": {}}})
+        result = rpc.get_pending_tx()
+        self.assertEqual(result["pending_tx_count"], 0)
+        self.assertEqual(result["first_pending_tx_hash"], "-1")
+        self.assertEqual(result["first_pending_tx_time"], 0)
+        self.assertEqual(result["max_ancestors_count"], 0)
+
+    def test_rpc_failure_returns_minus_one(self):
+        rpc = RpcGetStub({"get_raw_tx_pool": None})
+        result = rpc.get_pending_tx()
+        self.assertEqual(result["pending_tx_count"], -1)
+        self.assertEqual(result["first_pending_tx_time"], -1)
+        self.assertEqual(result["max_ancestors_count"], -1)
 
 
 if __name__ == "__main__":

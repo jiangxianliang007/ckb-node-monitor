@@ -160,7 +160,7 @@ The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
 | `ckb_epoch_length` | Epoch length from `get_current_epoch` |
 | `ckb_banned_addresses_total` | Total banned addresses from `get_banned_addresses` |
 | `ckb_banned_bootnodes_count` | Banned bootnode count from `get_banned_addresses` |
-| `ckb_tx_pool_oldest_pending_seconds` | Oldest pending tx age from `get_raw_tx_pool` |
+| `ckb_tx_pool_oldest_pending_seconds` | Oldest pending tx age from `get_raw_tx_pool` (monotonically increasing per tx via internal first-seen cache; includes `proposed` pool to avoid resets on state transitions) |
 | `ckb_tx_pool_pending_count` | Pending tx count from `get_raw_tx_pool` |
 | `ckb_tx_pool_max_ancestors_count` | Max pending tx ancestors from `get_raw_tx_pool` |
 | `ckb_fee_rate_mean` | Fee rate mean from `get_fee_rate_statistics` |
@@ -174,3 +174,11 @@ The exporter uses `ckb_*` metric names aligned with CKB RPC semantics:
 | `ckb_network_hashrate` | Estimated network hashrate in H/s from difficulty and epoch average block time |
 
 > DAO metrics (`ckb_dao_deposit`, `ckb_dao_depositors_count`) require indexer RPC support on the node. If unavailable, exporter reports `-1` and continues running.
+
+> **Alert rule recommendation for `ckb_tx_pool_oldest_pending_seconds`:** The `for` clause in Prometheus only delays alert *firing*; once an alert is firing, a single scrape returning `false` immediately resolves it. To avoid repeated alert → resolved → alert cycles caused by transient metric dips (e.g. a tx briefly moving from `pending` to `proposed`), use `max_over_time` together with `keep_firing_for`:
+> ```yaml
+> expr: max_over_time(ckb_tx_pool_oldest_pending_seconds{chain="mainnet"}[10m]) > 600
+> for: 5m
+> keep_firing_for: 10m
+> ```
+> `keep_firing_for` requires Prometheus ≥ 2.42. Without it, `max_over_time` alone already provides significant smoothing.
