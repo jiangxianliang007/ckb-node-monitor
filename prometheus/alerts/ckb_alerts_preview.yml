@@ -37,6 +37,15 @@ groups:
           summary: Tx pool size too high on {{ $labels.chain }} node {{ $labels.node_name }}
           description: Tx pool size is {{ $value }} bytes on {{ $labels.chain }} node {{ $labels.node_name }}.
 
+      - alert: CKBTxPoolFull
+        expr: ckb_tx_pool_total_tx_size{chain="preview"} >= 180000000
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Tx pool is full on {{ $labels.chain }} node {{ $labels.node_name }}
+          description: Tx pool size has reached the 180000000-byte capacity on {{ $labels.chain }} node {{ $labels.node_name }} (current {{ $value }} bytes).
+
       - alert: CKBTxPendingTimeTooHigh
         expr: ckb_tx_pool_oldest_pending_seconds{chain="preview"} > 600
         for: 10m
